@@ -6,7 +6,7 @@ class BrainHubApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'BrainHub',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -16,8 +16,7 @@ class BrainHubApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      initialRoute: AppRouter.login,
-      routes: AppRouter.routes,
+      routerConfig: AppRouter.routes,
     );
   }
 }

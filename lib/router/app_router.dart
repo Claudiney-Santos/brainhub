@@ -3,6 +3,7 @@ import 'package:brainhub/screens/login_screen.dart';
 //import 'package:brainhub/screens/menu_screen.dart';
 //import 'package:brainhub/screens/editor_screen.dart';
 //import 'package:brainhub/screens/settings_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -10,10 +11,25 @@ class AppRouter {
   static const String editor = '/editor';
   static const String settings = '/settings';
 
-  static Map<String, WidgetBuilder> get routes => {
-    login: (_) => const LoginScreen(),
-    //menu: (_) => const MenuScreen(),
-    //editor: (_) => const EditorScreen(),
-    //settings: (_) => const SettingsScreen(),
-  };
+  static GoRouter get routes => GoRouter(
+    initialLocation: AppRouter.login,
+    routes: [
+      GoRoute(
+        path: AppRouter.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      // GoRoute(
+      //   path: AppRouter.menu,
+      //   builder: (context, state) => const MenuScreen(),
+      // ),
+      // GoRoute(
+      //   path: AppRouter.menu,
+      //   builder: (context, state) => const EditorScreen(),
+      // ),
+      // GoRoute(
+      //   path: AppRouter.menu,
+      //   builder: (context, state) => const SettingsScreen(),
+      // ),
+    ],
+  );
 }
