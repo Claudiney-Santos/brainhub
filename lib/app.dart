@@ -1,3 +1,4 @@
+import 'package:brainhub/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:brainhub/router/app_router.dart';
 
@@ -6,18 +7,11 @@ class BrainHubApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'BrainHub',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFCECA59),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      initialRoute: AppRouter.login,
-      routes: AppRouter.routes,
+      theme: BrainHubTheme.darkTheme,
+      routerConfig: AppRouter.routes,
     );
   }
 }
