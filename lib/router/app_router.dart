@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:brainhub/screens/login_screen.dart';
-//import 'package:brainhub/screens/menu_screen.dart';
+import 'package:brainhub/features/login/login_screen.dart';
+import 'package:brainhub/features/login/login_viewmodel.dart';
+import 'package:brainhub/features/menu/menu_screen.dart';
 //import 'package:brainhub/screens/editor_screen.dart';
 //import 'package:brainhub/screens/settings_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -16,18 +17,20 @@ class AppRouter {
     routes: [
       GoRoute(
         path: AppRouter.login,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const LoginScreen(
+          viewModel: LoginViewModel(),
+        ),
+      ),
+      GoRoute(
+        path: AppRouter.menu,
+        builder: (context, state) => const MenuScreen(),
       ),
       // GoRoute(
-      //   path: AppRouter.menu,
-      //   builder: (context, state) => const MenuScreen(),
-      // ),
-      // GoRoute(
-      //   path: AppRouter.menu,
+      //   path: AppRouter.editor,
       //   builder: (context, state) => const EditorScreen(),
       // ),
       // GoRoute(
-      //   path: AppRouter.menu,
+      //   path: AppRouter.settings,
       //   builder: (context, state) => const SettingsScreen(),
       // ),
     ],

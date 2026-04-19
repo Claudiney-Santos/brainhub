@@ -1,8 +1,12 @@
+import 'package:brainhub/features/login/login_viewmodel.dart';
+import 'package:brainhub/router/app_router.dart';
 import 'package:flutter/material.dart';
-// import 'package:brainhub/router/app_router.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final LoginViewModel viewModel;
+
+  const LoginScreen({super.key, required this.viewModel});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -12,10 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _login() {
-    // TODO: add real auth here
+  Future<void> _login() async {
+    final success = await widget.viewModel.login(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
-    // Navigator.pushReplacementNamed(context, AppRouter.menu);
+    if (!mounted) return;
+
+    if (success) {
+      context.go(AppRouter.menu);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email or password')),
+      );
+    }
   }
 
   void _register() {
