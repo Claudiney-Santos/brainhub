@@ -16,19 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _login() {
-    widget.viewModel.login(
+  Future<void> _login() async {
+    final success = await widget.viewModel.login(
       email: _emailController.text,
       password: _passwordController.text,
-    ).then((success) {
-      if (success) {
-        context.go(AppRouter.menu);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid email or password')),
-        );
-      }
-    });
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      context.go(AppRouter.menu);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email or password')),
+      );
+    }
   }
 
   void _register() {
