@@ -1,5 +1,6 @@
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/router/app_router.dart';
+import 'package:brainhub/widgets/auth_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,10 +34,21 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _register() {
-    // TODO: add real register here
+  Future<void> _register() async {
+    final success = await widget.viewModel.login(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
-    // Navigator.pushReplacementNamed(context, AppRouter.menu);
+    if (!mounted) return;
+
+    if (success) {
+      context.go(AppRouter.menu);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email or password')),
+      );
+    }
   }
 
   @override
@@ -98,39 +110,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
 
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFCECA59),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Enter',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
+              AuthButton(onPressed: _login, text: 'Login'),
 
               const SizedBox(height: 16),
 
-              ElevatedButton(
-                onPressed: _register,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFCECA59),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Register',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
+              AuthButton(onPressed: _register, text: 'Register'),
             ],
           ),
         ),
