@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _register() async {
-    final success = await widget.viewModel.login(
+    final success = await widget.viewModel.register(
       email: _emailController.text,
       password: _passwordController.text,
     );
