@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
@@ -17,9 +16,8 @@ class AppRouter {
     routes: [
       GoRoute(
         path: AppRouter.login,
-        builder: (context, state) => const LoginScreen(
-          viewModel: LoginViewModel(),
-        ),
+        builder: (context, state) =>
+            const LoginScreen(viewModel: LoginViewModel()),
       ),
       GoRoute(
         path: AppRouter.menu,
