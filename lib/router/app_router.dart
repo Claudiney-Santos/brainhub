@@ -1,7 +1,7 @@
 import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
-//import 'package:brainhub/screens/editor_screen.dart';
+import 'package:brainhub/features/editor/editor_screen.dart';
 //import 'package:brainhub/screens/settings_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,10 +23,10 @@ class AppRouter {
         path: AppRouter.menu,
         builder: (context, state) => const MenuScreen(),
       ),
-      // GoRoute(
-      //   path: AppRouter.editor,
-      //   builder: (context, state) => const EditorScreen(),
-      // ),
+      GoRoute(
+        path: AppRouter.editor,
+        builder: (context, state) => const EditorScreen(),
+      ),
       // GoRoute(
       //   path: AppRouter.settings,
       //   builder: (context, state) => const SettingsScreen(),
