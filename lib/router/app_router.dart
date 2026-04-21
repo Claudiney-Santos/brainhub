@@ -2,7 +2,7 @@ import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
 import 'package:brainhub/features/editor/editor_screen.dart';
-//import 'package:brainhub/screens/settings_screen.dart';
+import 'package:brainhub/features/settings/settings_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -12,7 +12,7 @@ class AppRouter {
   static const String settings = '/settings';
 
   static GoRouter get routes => GoRouter(
-    initialLocation: AppRouter.login,
+    initialLocation: AppRouter.menu,
     routes: [
       GoRoute(
         path: AppRouter.login,
@@ -27,10 +27,10 @@ class AppRouter {
         path: AppRouter.editor,
         builder: (context, state) => const EditorScreen(),
       ),
-      // GoRoute(
-      //   path: AppRouter.settings,
-      //   builder: (context, state) => const SettingsScreen(),
-      // ),
+      GoRoute(
+        path: AppRouter.settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
     ],
   );
 }
