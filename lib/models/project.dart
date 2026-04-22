@@ -1,4 +1,6 @@
 class Project {
-  String name;
-  Project({required this.name});
+  final String name;
+  final String code;
+
+  Project({required this.name, required this.code});
 }
