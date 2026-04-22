@@ -12,7 +12,7 @@ class AppRouter {
   static const String settings = '/settings';
 
   static GoRouter get routes => GoRouter(
-    initialLocation: AppRouter.menu,
+    initialLocation: AppRouter.login,
     routes: [
       GoRoute(
         path: AppRouter.login,
