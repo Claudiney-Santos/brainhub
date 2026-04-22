@@ -53,7 +53,7 @@ class _MenuScreenState extends State<MenuScreen> {
     }
 
     setState(() {
-      _projects.insert(0, Project(name: name));
+      _projects.insert(0, Project(name: name, code: ''));
     });
     Navigator.of(context).pop();
   }
@@ -103,7 +103,7 @@ class _MenuScreenState extends State<MenuScreen> {
     }
 
     setState(() {
-      _projects[index].name = name;
+      _projects[index] = Project(name: name, code: _projects[index].code);
     });
     Navigator.of(context).pop();
   }
