@@ -1,13 +1,25 @@
+import 'package:brainhub/utils/result.dart';
+
 class LoginViewModel {
   const LoginViewModel();
 
-  Future<bool> login({required String email, required String password}) async {
+  Future<Result<(), String>> login({required String email, required String password}) async {
     await Future.delayed(const Duration(seconds: 2));
-    return email == 'exemplo@email.com' && password == 'senha123';
+    if(email == 'exemplo@email.com' && password == 'senha123') {
+      return Result.ok(());
+    } else {
+      return Result.err('Invalid email or password');
+    }
   }
 
-  Future<bool> register({required String email, required String password}) async {
+  Future<Result<(), String>> register({required String email, required String password}) async {
     await Future.delayed(const Duration(seconds: 2));
-    return email.isNotEmpty && password.isNotEmpty;
+    if(email.isEmpty) {
+      return Result.err('Invalid email');
+    } else if(password.isEmpty) {
+      return Result.err('Invalid password');
+    } else {
+      return Result.ok(());
+    }
   }
 }
