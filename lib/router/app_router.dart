@@ -2,8 +2,11 @@ import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
 import 'package:brainhub/features/editor/editor_screen.dart';
+import 'package:brainhub/features/menu/menu_viewmodel.dart';
 import 'package:brainhub/features/settings/settings_screen.dart';
+import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -16,12 +19,15 @@ class AppRouter {
     routes: [
       GoRoute(
         path: AppRouter.login,
-        builder: (context, state) =>
-            const LoginScreen(viewModel: LoginViewModel()),
+        builder: (context, state) => LoginScreen(
+          viewModel: LoginViewModel(),
+        ),
       ),
       GoRoute(
         path: AppRouter.menu,
-        builder: (context, state) => const MenuScreen(),
+        builder: (context, state) => MenuScreen(
+          menuViewModel: context.read(),
+        ),
       ),
       GoRoute(
         path: AppRouter.editor,

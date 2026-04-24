@@ -1,17 +1,26 @@
+import 'package:brainhub/features/menu/menu_viewmodel.dart';
+import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:brainhub/models/project.dart';
 import 'package:brainhub/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({super.key});
+  final MenuViewModel menuViewModel;
+
+  MenuScreen({super.key, required this.menuViewModel});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  final List<Project> _projects = [];
+  @override
+  void initState() {
+    super.initState();
+    widget.menuViewModel.load();
+  }
 
   void _addSketch() {
     final controller = TextEditingController();
@@ -39,27 +48,31 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _confirmAdd(String input) {
+  Future<void> _confirmAdd(String input) async {
     final name = input.trim();
     if (name.isEmpty) return;
 
-    final alreadyExists = _projects.any((s) => s.name == name);
-    if (alreadyExists) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('"$name" already exists.')));
-      Navigator.of(context).pop();
+    final result = await widget.menuViewModel.addProject(name);
+
+    if(!mounted) {
       return;
     }
 
-    setState(() {
-      _projects.insert(0, Project(name: name, code: ''));
-    });
-    Navigator.of(context).pop();
+    switch(result) {
+      case Ok():
+        Navigator.of(context).pop();
+        break;
+      case Err():
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('"$name" already exists.')));
+        Navigator.of(context).pop();
+        break;
+    }
   }
 
   void _renameSketch(int index) {
-    final controller = TextEditingController(text: _projects[index].name);
+    final controller = TextEditingController(text: widget.menuViewModel.projects[index].name);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -84,115 +97,132 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _confirmRename(int index, String input) {
+  void _confirmRename(int index, String input) async {
     final name = input.trim();
     if (name.isEmpty) return;
 
-    if (name == _projects[index].name) {
-      Navigator.of(context).pop();
+    final result = await widget.menuViewModel.renameProject(index, name);
+
+    if(!mounted) {
       return;
     }
 
-    final alreadyExists = _projects.any((s) => s.name == name);
-    if (alreadyExists) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('"$name" already exists.')));
-      Navigator.of(context).pop();
-      return;
+    switch(result) {
+      case Ok():
+        Navigator.of(context).pop();
+        break;
+      case Err():
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result.error)));
+        Navigator.of(context).pop();
+        break;
     }
-
-    setState(() {
-      _projects[index] = Project(name: name, code: _projects[index].code);
-    });
-    Navigator.of(context).pop();
   }
 
-  void _deleteSketch(int index) {
-    setState(() {
-      _projects.removeAt(index);
-    });
+  void _deleteSketch(int index) async {
+    final result = await widget.menuViewModel.deleteProject(index);
+
+    if(!mounted) {
+      return;
+    }
+
+    switch(result) {
+      case Ok():
+        break;
+      case Err():
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result.error)));
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projects'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.go(AppRouter.settings),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _addSketch,
-                icon: const Icon(Icons.add),
-                label: const Text('New Project'),
+    final vm = widget.menuViewModel;
+    return ListenableBuilder(
+      listenable: widget.menuViewModel,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Projects'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () => context.go(AppRouter.settings),
               ),
-            ),
+            ],
           ),
-          Expanded(
-            child: _projects.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No projects yet.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: _projects.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.5),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          title: Text(_projects[index].name),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit_outlined),
-                                onPressed: () => _renameSketch(index),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline),
-                                color: Colors.redAccent,
-                                onPressed: () => _deleteSketch(index),
-                              ),
-                            ],
-                          ),
-                          onTap: () => context.go(AppRouter.editor),
-                        ),
-                      );
-                    },
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _addSketch,
+                    icon: const Icon(Icons.add),
+                    label: const Text('New Project'),
                   ),
+                ),
+              ),
+              Expanded(
+                child: vm.projects.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No projects yet.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: vm.projects.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              title: Text(vm.projects[index].name),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit_outlined),
+                                    onPressed: () => _renameSketch(index),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline),
+                                    color: Colors.redAccent,
+                                    onPressed: () => _deleteSketch(index),
+                                  ),
+                                ],
+                              ),
+                              onTap: () => context.go(AppRouter.editor),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
