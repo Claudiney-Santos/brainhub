@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 class MenuViewModel extends ChangeNotifier {
   bool isLoaded = false;
-  bool isSaved = false;
   List<Project> projects = [];
   final ProjectsRepository _projectsRepository;
 
@@ -13,7 +12,11 @@ class MenuViewModel extends ChangeNotifier {
     : _projectsRepository = projectsRepository;
 
   void load() async {
-    projects = await _projectsRepository.loadProjects();
+    isLoaded = false;
+    projects = [];
+    for(final project in (await _projectsRepository.loadProjects())) {
+      projects.add(project);
+    }
     isLoaded = true;
     notifyListeners();
   }
@@ -23,37 +26,57 @@ class MenuViewModel extends ChangeNotifier {
       return Result.err('"$projectName" already exists.');
     }
 
-    // projects = [...projects, Project(name: projectName, code: "")];
-    isSaved = true;
+    projects = [...projects, Project(name: projectName, code: "")];
+    isLoaded = false;
     notifyListeners();
 
     await _projectsRepository.addProject(projectName);
-    projects = await _projectsRepository.loadProjects();
-    isSaved = false;
+    isLoaded = true;
     notifyListeners();
 
     return Result.ok(());
   }
 
   Future<Result<(), String>> renameProject(int index, String newName) async {
-    final oldProject = projects[index];
-    final oldName = oldProject.name;
+    try {
+      final oldProject = projects[index];
+      final oldName = oldProject.name;
 
-    if(oldName == newName) {
-      return Result.ok(());
+      if(oldName == newName) {
+        return Result.ok(());
+      }
+
+      final newProject = Project(name: newName, code: oldProject.code);
+
+      projects = [
+        ...projects.sublist(0, index),
+        newProject,
+        ...projects.sublist(index + 1),
+      ];
+
+      isLoaded = false;
+      notifyListeners();
+
+      final result = await _projectsRepository.updateProject(index, newProject);
+      load();
+
+      return result;
+    } catch(e) {
+      return Result.err(e.toString());
     }
-
-    final newProject = Project(name: newName, code: oldProject.code);
-
-    final result = await _projectsRepository.updateProject(oldProject, newProject);
-    load();
-
-    return result;
   }
 
   Future<Result<(), String>> deleteProject(int index) async {
     try {
-      await _projectsRepository.removeProject(projects[index]);
+      projects = [
+        ...projects.sublist(0, index),
+        ...projects.sublist(index + 1),
+      ];
+
+      isLoaded = false;
+      notifyListeners();
+
+      await _projectsRepository.removeProject(index);
       load();
       return Result.ok(());
     } catch(error) {
