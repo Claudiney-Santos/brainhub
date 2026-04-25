@@ -52,23 +52,19 @@ class _MenuScreenState extends State<MenuScreen> {
     final name = input.trim();
     if (name.isEmpty) return;
 
-    final result = await widget.menuViewModel.addProject(name);
+    widget.menuViewModel.addProject(name).then((result) {
+      switch(result) {
+        case Ok():
+          break;
+        case Err():
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(result.error)));
+          break;
+      }
+    });
 
-    if(!mounted) {
-      return;
-    }
-
-    switch(result) {
-      case Ok():
-        Navigator.of(context).pop();
-        break;
-      case Err():
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('"$name" already exists.')));
-        Navigator.of(context).pop();
-        break;
-    }
+    Navigator.of(context).pop();
   }
 
   void _renameSketch(int index) {
@@ -101,41 +97,33 @@ class _MenuScreenState extends State<MenuScreen> {
     final name = input.trim();
     if (name.isEmpty) return;
 
-    final result = await widget.menuViewModel.renameProject(index, name);
+    widget.menuViewModel.renameProject(index, name).then((result) {
+      switch(result) {
+        case Ok():
+          break;
+        case Err():
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(result.error)));
+          break;
+      }
+    });
 
-    if(!mounted) {
-      return;
-    }
-
-    switch(result) {
-      case Ok():
-        Navigator.of(context).pop();
-        break;
-      case Err():
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(result.error)));
-        Navigator.of(context).pop();
-        break;
-    }
+    Navigator.of(context).pop();
   }
 
   void _deleteSketch(int index) async {
-    final result = await widget.menuViewModel.deleteProject(index);
-
-    if(!mounted) {
-      return;
-    }
-
-    switch(result) {
-      case Ok():
-        break;
-      case Err():
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(result.error)));
-        break;
-    }
+    widget.menuViewModel.deleteProject(index).then((result) {
+      switch(result) {
+        case Ok():
+          break;
+        case Err():
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(result.error)));
+          break;
+      }
+    });
   }
 
   @override
@@ -168,7 +156,11 @@ class _MenuScreenState extends State<MenuScreen> {
                 ),
               ),
               Expanded(
-                child: vm.projects.isEmpty
+                child: !vm.isLoaded
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : vm.projects.isEmpty
                     ? const Center(
                         child: Text(
                           'No projects yet.',

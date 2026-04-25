@@ -30,25 +30,27 @@ class ProjectsRepository {
     return Result.ok(());
   }
 
-  Future<void> removeProject(Project project) async {
+  Future<void> removeProject(int index) async {
     await Future.delayed(const Duration(seconds: 1));
-    _projects.remove(project);
+    _projects.removeAt(index);
   }
 
-  Future<Result<(), String>> updateProject(Project oldProject, Project newProject) async {
+  Future<Result<(), String>> updateProject(int index, Project newProject) async {
     await Future.delayed(const Duration(seconds: 1));
+    try {
+      final oldProject = _projects[index];
 
-    final oldName = oldProject.name;
-    final newName = newProject.name;
-    final index = _projects.indexOf(oldProject);
-    if(index == -1) {
-      return Result.err('"${oldName}" does not exists');
-    } else if(oldName != newName && _projects.any((project) => project.name == newName)) {
-      return Result.err('"${newName}" already exists');
+      final oldName = oldProject.name;
+      final newName = newProject.name;
+      if(oldName != newName && _projects.any((project) => project.name == newName)) {
+        return Result.err('"${newName}" already exists');
+      }
+
+      _projects[index] = newProject;
+
+      return Result.ok(());
+    } catch (e) {
+      return Result.err(e.toString());
     }
-
-    _projects[index] = newProject;
-
-    return Result.ok(());
   }
 }
