@@ -67,8 +67,8 @@ class _MenuScreenState extends State<MenuScreen> {
     Navigator.of(context).pop();
   }
 
-  void _renameSketch(int index) {
-    final controller = TextEditingController(text: widget.menuViewModel.projects[index].name);
+  void _renameSketch(String id) {
+    final controller = TextEditingController(text: widget.menuViewModel.projects[id]!.name);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -77,7 +77,7 @@ class _MenuScreenState extends State<MenuScreen> {
           controller: controller,
           autofocus: true,
           decoration: const InputDecoration(hintText: 'Project name'),
-          onSubmitted: (_) => _confirmRename(index, controller.text),
+          onSubmitted: (_) => _confirmRename(id, controller.text),
         ),
         actions: [
           TextButton(
@@ -85,7 +85,7 @@ class _MenuScreenState extends State<MenuScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => _confirmRename(index, controller.text),
+            onPressed: () => _confirmRename(id, controller.text),
             child: const Text('Save'),
           ),
         ],
@@ -93,11 +93,11 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _confirmRename(int index, String input) async {
+  void _confirmRename(String id, String input) async {
     final name = input.trim();
     if (name.isEmpty) return;
 
-    widget.menuViewModel.renameProject(index, name).then((result) {
+    widget.menuViewModel.renameProject(id, name).then((result) {
       switch(result) {
         case Ok():
           break;
@@ -112,8 +112,8 @@ class _MenuScreenState extends State<MenuScreen> {
     Navigator.of(context).pop();
   }
 
-  void _deleteSketch(int index) async {
-    widget.menuViewModel.deleteProject(index).then((result) {
+  void _deleteSketch(String id) async {
+    widget.menuViewModel.deleteProject(id).then((result) {
       switch(result) {
         case Ok():
           break;
@@ -130,8 +130,10 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     final vm = widget.menuViewModel;
     return ListenableBuilder(
-      listenable: widget.menuViewModel,
+      listenable: vm,
       builder: (context, child) {
+        final projects = vm.projectsList;
+        print('Building MenuScreen with projects: ${projects.map((p) => p.second.name).join(', ')}');
         return Scaffold(
           appBar: AppBar(
             title: const Text('Projects'),
@@ -160,7 +162,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
-                  : vm.projects.isEmpty
+                  : projects.isEmpty
                     ? const Center(
                         child: Text(
                           'No projects yet.',
@@ -168,7 +170,7 @@ class _MenuScreenState extends State<MenuScreen> {
                         ),
                       )
                     : ListView.builder(
-                        itemCount: vm.projects.length,
+                        itemCount: projects.length,
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.symmetric(
@@ -190,22 +192,22 @@ class _MenuScreenState extends State<MenuScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              title: Text(vm.projects[index].name),
+                              title: Text(projects[index].second.name),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit_outlined),
-                                    onPressed: () => _renameSketch(index),
+                                    onPressed: () => _renameSketch(projects[index].first),
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete_outline),
                                     color: Colors.redAccent,
-                                    onPressed: () => _deleteSketch(index),
+                                    onPressed: () => _deleteSketch(projects[index].first),
                                   ),
                                 ],
                               ),
-                              onTap: () => context.go(AppRouter.editor),
+                              onTap: () => context.go("${AppRouter.editor}?id=${projects[index].first}"),
                             ),
                           );
                         },
