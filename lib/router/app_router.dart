@@ -1,3 +1,4 @@
+import 'package:brainhub/features/editor/editor_viewmodel.dart';
 import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
@@ -31,7 +32,17 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRouter.editor,
-        builder: (context, state) => const EditorScreen(),
+        builder: (context, state) {
+          final projectId = state.uri.queryParameters['id'];
+          final projectsRepository = context.read<ProjectsRepository>();
+          print('Navigating to editor with project ID: $projectId');
+          return EditorScreen(
+            editorViewModel: EditorViewModel(
+              projectsRepository: projectsRepository,
+              projectId: projectId,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: AppRouter.settings,
