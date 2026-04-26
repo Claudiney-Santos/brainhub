@@ -1,22 +1,27 @@
 import 'dart:collection';
 
 import 'package:brainhub/models/project.dart';
+import 'package:brainhub/utils/id_generator.dart';
 import 'package:brainhub/utils/result.dart';
 
 class ProjectsRepository {
-  final List<Project> _projects = [];
+  final HashMap<String, Project> _projects = HashMap();
 
-  UnmodifiableListView<Project> get projects => UnmodifiableListView(_projects);
+  UnmodifiableMapView<String, Project> get projects => UnmodifiableMapView(_projects);
+
+  Project? getProjectById(String id) {
+    return _projects[id];
+  }
 
   Project? getProjectByName(String name) {
     try {
-      return _projects.firstWhere((project) => project.name == name);
+      return _projects.values.firstWhere((project) => project.name == name);
     } catch (e) {
       return null;
     }
   }
 
-  Future<List<Project>> loadProjects() async {
+  Future<UnmodifiableMapView<String, Project>> loadProjects() async {
     await Future.delayed(const Duration(seconds: 1));
     return projects;
   }
@@ -26,27 +31,28 @@ class ProjectsRepository {
     if(getProjectByName(projectName) != null) {
       return Result.err('Project with the same name already exists');
     }
-    _projects.add(Project(name: projectName, code: ""));
+    final id = IdGenerator.generateId();
+    _projects[id] = Project(name: projectName, code: "");
     return Result.ok(());
   }
 
-  Future<void> removeProject(int index) async {
+  Future<void> removeProject(String id) async {
     await Future.delayed(const Duration(seconds: 1));
-    _projects.removeAt(index);
+    _projects.remove(id);
   }
 
-  Future<Result<(), String>> updateProject(int index, Project newProject) async {
+  Future<Result<(), String>> updateProject(String id, Project newProject) async {
     await Future.delayed(const Duration(seconds: 1));
     try {
-      final oldProject = _projects[index];
+      final oldProject = _projects[id]!;
 
       final oldName = oldProject.name;
       final newName = newProject.name;
-      if(oldName != newName && _projects.any((project) => project.name == newName)) {
-        return Result.err('"${newName}" already exists');
+      if(oldName != newName && _projects.values.any((project) => project.name == newName)) {
+        return Result.err('"$newName" already exists');
       }
 
-      _projects[index] = newProject;
+      _projects[id] = newProject;
 
       return Result.ok(());
     } catch (e) {
