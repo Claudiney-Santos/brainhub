@@ -1,3 +1,4 @@
+import 'package:brainhub/features/brainfuck_interpreter/brainfuck_interpreter.dart';
 import 'package:brainhub/models/project.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/utils/result.dart';
@@ -33,17 +34,21 @@ class EditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Result<(), String>> runCode() async {
-    if(project == null) {
-      return Result.err('No project loaded.');
-    }
-
+  Future<Result<(), String>> runCode(String script) async {
     _isRunning = true;
     showOutput = false;
     notifyListeners();
 
-    Future.delayed(const Duration(seconds: 2)); // Simulate code execution time
-    _output = 'Code output'; // TODO: Code interpreter and output
+    final result = await BrainfuckInterpreter.run(script);
+
+    switch(result) {
+      case Ok():
+        _output = result.value;
+        break;
+      case Err():
+        _output = 'Error: ${result.error}';
+        break;
+    }
 
     _isRunning = false;
     showOutput = true;
