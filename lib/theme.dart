@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-final themeNotifier = ValueNotifier(ThemeMode.dark);
-
 class BrainHubTheme {
   static final lightTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(

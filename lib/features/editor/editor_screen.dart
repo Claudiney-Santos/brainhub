@@ -116,20 +116,7 @@ class _EditorScreenState extends State<EditorScreen> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: CodeEditorField(controller: _codeController),
-                  ),
+                  child: CodeEditorField(controller: _codeController),
                 ),
               ),
 
