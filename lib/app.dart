@@ -1,3 +1,4 @@
+import 'package:brainhub/repositories/settings_repository.dart';
 import 'package:brainhub/providers.dart';
 import 'package:brainhub/theme.dart';
 import 'package:flutter/material.dart';
@@ -11,15 +12,17 @@ class BrainHubApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: providers,
-      child: Consumer<ThemeMode>(
-        builder: (context, theme, child) => MaterialApp.router(
-          title: 'BrainHub',
-          debugShowCheckedModeBanner: false,
-          theme: (theme == ThemeMode.light)
-            ? BrainHubTheme.lightTheme
-            : BrainHubTheme.darkTheme,
-          routerConfig: AppRouter.routes,
-        ),
+      child: Consumer<SettingsRepository>(
+        builder: (context, settings, child) {
+          return MaterialApp.router(
+            title: 'BrainHub',
+            debugShowCheckedModeBanner: false,
+            theme: (settings.themeMode == ThemeMode.light)
+              ? BrainHubTheme.lightTheme
+              : BrainHubTheme.darkTheme,
+            routerConfig: AppRouter.routes,
+          );
+        },
       ),
     );
   }
