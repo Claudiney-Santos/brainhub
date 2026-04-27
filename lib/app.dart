@@ -11,11 +11,15 @@ class BrainHubApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: providers,
-      child: MaterialApp.router(
-        title: 'BrainHub',
-        debugShowCheckedModeBanner: false,
-        theme: BrainHubTheme.darkTheme,
-        routerConfig: AppRouter.routes,
+      child: Consumer<ThemeMode>(
+        builder: (context, theme, child) => MaterialApp.router(
+          title: 'BrainHub',
+          debugShowCheckedModeBanner: false,
+          theme: (theme == ThemeMode.light)
+            ? BrainHubTheme.lightTheme
+            : BrainHubTheme.darkTheme,
+          routerConfig: AppRouter.routes,
+        ),
       ),
     );
   }

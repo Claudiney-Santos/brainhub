@@ -1,8 +1,12 @@
 import 'package:brainhub/features/menu/menu_viewmodel.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 final providers = [
+  Provider<ThemeMode>(
+    create: (context) => ThemeMode.system,
+  ),
   Provider<ProjectsRepository>(
     create: (context) => ProjectsRepository(),
   ),

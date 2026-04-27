@@ -22,6 +22,7 @@ class StepperTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
       leading: Icon(icon),
       title: Text(label),
@@ -36,7 +37,9 @@ class StepperTile extends StatelessWidget {
           ),
           Text(
             value >= 1000 ? '${(value / 1000).toStringAsFixed(0)}k' : '$value',
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.add),

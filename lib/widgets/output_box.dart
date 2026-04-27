@@ -8,6 +8,7 @@ class OutputBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AnimatedSlide(
       offset: Offset.zero,
       duration: const Duration(milliseconds: 300),
@@ -15,10 +16,10 @@ class OutputBox extends StatelessWidget {
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant,
+            color: theme.colorScheme.outlineVariant,
           ),
         ),
         child: Column(

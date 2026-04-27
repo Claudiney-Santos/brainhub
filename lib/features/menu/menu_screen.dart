@@ -129,6 +129,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = widget.menuViewModel;
+    final theme = Theme.of(context);
     return ListenableBuilder(
       listenable: vm,
       builder: (context, child) {
@@ -163,10 +164,12 @@ class _MenuScreenState extends State<MenuScreen> {
                       child: CircularProgressIndicator(),
                     )
                   : projects.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
                           'No projects yet.',
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -178,11 +181,11 @@ class _MenuScreenState extends State<MenuScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
+                              color: theme.colorScheme.surface,
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.5),
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -202,7 +205,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete_outline),
-                                    color: Colors.redAccent,
+                                    color: theme.colorScheme.error,
                                     onPressed: () => _deleteSketch(projects[index].first),
                                   ),
                                 ],
