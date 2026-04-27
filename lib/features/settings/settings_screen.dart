@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go(AppRouter.menu),
+            onPressed: () => context.pop(),
           ),
           title: const Text('Settings'),
         ),

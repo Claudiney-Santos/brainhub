@@ -141,7 +141,7 @@ class _MenuScreenState extends State<MenuScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings_outlined),
-                onPressed: () => context.go(AppRouter.settings),
+                onPressed: () => context.push(AppRouter.settings),
               ),
             ],
           ),
@@ -210,7 +210,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                   ),
                                 ],
                               ),
-                              onTap: () => context.go("${AppRouter.editor}?id=${projects[index].first}"),
+                              onTap: () => context.push("${AppRouter.editor}?id=${projects[index].first}"),
                             ),
                           );
                         },
