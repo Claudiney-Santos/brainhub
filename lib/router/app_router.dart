@@ -15,7 +15,7 @@ class AppRouter {
   static const String editor = '/editor';
   static const String settings = '/settings';
 
-  static GoRouter get routes => GoRouter(
+  static final GoRouter routes = GoRouter(
     initialLocation: AppRouter.login,
     routes: [
       GoRoute(
@@ -46,7 +46,9 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRouter.settings,
-        builder: (context, state) => const SettingsScreen(),
+        builder: (context, state) => SettingsScreen(
+          settingsViewModel: context.read(),
+        ),
       ),
     ],
   );

@@ -73,7 +73,7 @@ class _EditorScreenState extends State<EditorScreen> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.go(AppRouter.menu),
+              onPressed: () => context.pop(),
             ),
             title: const Text('Editor'),
             actions: [

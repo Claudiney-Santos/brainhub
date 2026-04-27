@@ -1,4 +1,6 @@
+import 'package:brainhub/repositories/settings_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CodeEditorField extends StatelessWidget {
   final TextEditingController controller;
@@ -8,6 +10,7 @@ class CodeEditorField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = context.read<SettingsRepository>();
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
@@ -26,6 +29,7 @@ class CodeEditorField extends StatelessWidget {
         expands: true,
         style: theme.textTheme.bodyLarge?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
+          fontSize: settings.fontSize,
           fontFamily: 'monospace',
           letterSpacing: 1.5,
         ),
