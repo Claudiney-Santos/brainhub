@@ -33,7 +33,8 @@ class _EditorScreenState extends State<EditorScreen> {
   }
 
   void _runCode() {
-    widget.editorViewModel.runCode().then((result) {
+    final script = _codeController.text;
+    widget.editorViewModel.runCode(script).then((result) {
       switch(result) {
         case Ok():
           break;

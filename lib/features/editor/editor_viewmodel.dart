@@ -34,16 +34,12 @@ class EditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Result<(), String>> runCode() async {
-    if(project == null) {
-      return Result.err('No project loaded.');
-    }
-
+  Future<Result<(), String>> runCode(String script) async {
     _isRunning = true;
     showOutput = false;
     notifyListeners();
 
-    final result = await BrainfuckInterpreter.run(project!.code);
+    final result = await BrainfuckInterpreter.run(script);
 
     switch(result) {
       case Ok():
