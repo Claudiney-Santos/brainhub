@@ -45,7 +45,7 @@ class MenuViewModel extends ChangeNotifier {
 
   Future<Result<(), String>> renameProject(String id, String newName) async {
     try {
-      final oldProject = projects[id]!;
+      final oldProject = _projectsRepository.getProjectById(id)!;
       final oldName = oldProject.name;
 
       if(oldName == newName) {
@@ -53,6 +53,9 @@ class MenuViewModel extends ChangeNotifier {
       }
 
       final newProject = Project(name: newName, code: oldProject.code);
+      print('Renaming project "$oldName" to "$newName"');
+      print('Project old content: ${oldProject.code}');
+      print('Project new content: ${newProject.code}');
 
       isLoaded = false;
       notifyListeners();
