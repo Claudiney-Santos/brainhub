@@ -33,11 +33,13 @@ class CodeEditorField extends StatelessWidget {
           fontFamily: 'monospace',
           letterSpacing: 1.5,
         ),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           contentPadding: EdgeInsets.all(16),
           border: InputBorder.none,
           hintText: 'Write Brainfuck code here...',
-          hintStyle: TextStyle(color: Colors.white24),
+          hintStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         keyboardType: TextInputType.multiline,
         textInputAction: TextInputAction.newline,
