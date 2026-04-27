@@ -137,6 +137,10 @@ class _MenuScreenState extends State<MenuScreen> {
         print('Building MenuScreen with projects: ${projects.map((p) => p.second.name).join(', ')}');
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.logout_outlined),
+              onPressed: () => context.go(AppRouter.login),
+            ),
             title: const Text('Projects'),
             actions: [
               IconButton(
