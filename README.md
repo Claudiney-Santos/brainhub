@@ -23,3 +23,20 @@ Esta aplicação foi desenvolvida com Flutter.
 - Implementação de database para persistência de dados dos usuários e scripts de brainfuck;
 - Geração e leitura de código QR dos scripts de brainfuck;
 - Implementação da função de input do interpretador de brainfuck;
+
+## Compilação
+A aplicação foi desenvolvida com Flutter, versão 3.41.6. Siga o (Guia Rápido do Flutter)[https://docs.flutter.dev/install/quick] para a configuração do ambiente.
+As plataformas principais para a aplicação são Android e Linux. Siga a documentação do Flutter para configurar esses ambientes.
+Para a compilação da versão do Android, certifique-se de utilizar a versão 17 ou superior do JDK.
+
+Para compilar a versão de Linux, execute o comando:
+```bash
+flutter build linux
+```
+O arquivo executável estará disponível em `build/linux/x64/release/bundle/brainhub`.
+
+Para compilar a versão de Linux, execute o comando:
+```bash
+flutter build apk
+```
+O arquivo executável estará disponível em `build/app/outputs/apk/release/app-release.apk`. Para a instalação do aplicativo, transfira esse arquivo para seu dispositivo android e realize a instalação. Use um dispositivo com versão Android 12 ou superior.
