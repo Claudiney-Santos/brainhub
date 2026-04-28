@@ -35,12 +35,6 @@ class InputEditorField extends StatelessWidget {
         ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(16),
-          label: Text("Input", style: theme.textTheme.labelLarge?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            fontSize: settings.fontSize + 2,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'monospace',
-          )),
           border: InputBorder.none,
           hintText: "Insert input here...",
           hintStyle: TextStyle(
