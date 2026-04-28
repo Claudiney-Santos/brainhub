@@ -2,6 +2,8 @@ import 'package:brainhub/features/brainfuck_interpreter/brainfuck_interpreter.da
 import 'package:brainhub/features/editor/editor_viewmodel.dart';
 import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
+import 'package:brainhub/features/register/register_screen.dart';
+import 'package:brainhub/features/register/register_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
 import 'package:brainhub/features/editor/editor_screen.dart';
 import 'package:brainhub/features/settings/settings_screen.dart';
@@ -12,6 +14,7 @@ import 'package:provider/provider.dart';
 
 class AppRouter {
   static const String login = '/login';
+  static const String register = '/register';
   static const String menu = '/menu';
   static const String editor = '/editor';
   static const String settings = '/settings';
@@ -22,6 +25,12 @@ class AppRouter {
       GoRoute(
         path: AppRouter.login,
         builder: (context, state) => LoginScreen(viewModel: LoginViewModel()),
+      ),
+      GoRoute(
+        path: AppRouter.register,
+        builder: (context, state) => RegisterScreen(
+          viewModel: RegisterViewModel(),
+        ),
       ),
       GoRoute(
         path: AppRouter.menu,

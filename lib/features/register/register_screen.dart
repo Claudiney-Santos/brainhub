@@ -1,27 +1,22 @@
-import 'package:brainhub/features/login/login_viewmodel.dart';
-import 'package:brainhub/router/app_router.dart';
+import 'package:brainhub/features/register/register_viewmodel.dart';
 import 'package:brainhub/utils/result.dart';
-import 'package:brainhub/widgets/auth_button.dart';
-import 'package:brainhub/widgets/login_form.dart';
+import 'package:brainhub/widgets/register_form.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginScreen extends StatefulWidget {
-  final LoginViewModel viewModel;
+class RegisterScreen extends StatefulWidget {
+  final RegisterViewModel viewModel;
 
-  const LoginScreen({super.key, required this.viewModel});
+  const RegisterScreen({super.key, required this.viewModel});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  Future<void> _login(String email, String password) async {
+class _RegisterScreenState extends State<RegisterScreen> {
+  Future<void> _register(String email, String password) async {
     if(widget.viewModel.isLoading) return;
-    final response = await widget.viewModel.login(
+    final response = await widget.viewModel.register(
       email: email,
       password: password,
     );
@@ -30,7 +25,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     switch(response) {
       case Ok():
-        context.go(AppRouter.menu);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created successfully! Please log in.')),
+        );
+        context.pop();
+
         break;
       case Err():
         ScaffoldMessenger.of(context).showSnackBar(
@@ -38,13 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         break;
     }
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   @override
@@ -81,14 +73,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
-                  LoginForm(onLogin: _login, isLoading: vm.isLoading),
+                  RegisterForm(onRegister: _register, isLoading: vm.isLoading),
 
                   const SizedBox(height: 16),
 
                   OutlinedButton(
                     onPressed: () {
                       if(vm.isLoading) return;
-                      context.push(AppRouter.register);
+                      context.pop();
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: theme.colorScheme.secondary,
@@ -96,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Create an account'),
+                    child: const Text('Already have an account? Login'),
                   ),
                 ],
               ),
