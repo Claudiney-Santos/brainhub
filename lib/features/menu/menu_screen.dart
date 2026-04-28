@@ -3,6 +3,8 @@ import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:brainhub/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:brainhub/widgets/project_list_item.dart';
+import 'package:brainhub/models/project.dart';
 
 class MenuScreen extends StatefulWidget {
   final MenuViewModel menuViewModel;
@@ -130,6 +132,101 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
+  void _showQr(BuildContext context, Project project) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  project.name,
+                  style: theme.textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 20),
+
+                Container(
+                  width: 220,
+                  height: 220,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(child: Icon(Icons.qr_code_2, size: 120)),
+                ),
+
+                const SizedBox(height: 20),
+
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Close',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showQrScanner(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.qr_code_rounded,
+                  size: 40,
+                  color: theme.colorScheme.primary,
+                ),
+
+                const SizedBox(height: 16),
+
+                Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(child: Icon(Icons.videocam, size: 100)),
+                ),
+
+                const SizedBox(height: 20),
+
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = widget.menuViewModel;
@@ -146,6 +243,10 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             title: const Text('Projects'),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt_rounded),
+                onPressed: () => _showQrScanner(context),
+              ),
               IconButton(
                 icon: const Icon(Icons.settings_outlined),
                 onPressed: () => context.push(AppRouter.settings),
@@ -181,49 +282,17 @@ class _MenuScreenState extends State<MenuScreen> {
                     : ListView.builder(
                         itemCount: projects.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.colorScheme.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              title: Text(projects[index].second.name),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit_outlined),
-                                    onPressed: () =>
-                                        _renameSketch(projects[index].first),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    color: theme.colorScheme.error,
-                                    onPressed: () =>
-                                        _deleteSketch(projects[index].first),
-                                  ),
-                                ],
-                              ),
-                              onTap: () => context.push(
-                                "${AppRouter.editor}?id=${projects[index].first}",
-                              ),
-                            ),
+                          final id = projects[index].first;
+                          final project = projects[index].second;
+
+                          return ProjectListItem(
+                            id: id,
+                            project: project,
+                            onRename: () => _renameSketch(id),
+                            onDelete: () => _deleteSketch(id),
+                            onOpen: () =>
+                                context.push("${AppRouter.editor}?id=$id"),
+                            onShowQr: () => _showQr(context, project),
                           );
                         },
                       ),
