@@ -1,5 +1,6 @@
 import 'package:brainhub/features/editor/editor_viewmodel.dart';
 import 'package:brainhub/utils/result.dart';
+import 'package:brainhub/widgets/input_editor_field.dart';
 import 'package:flutter/material.dart';
 import 'package:brainhub/widgets/code_editor_field.dart';
 import 'package:brainhub/widgets/output_box.dart';
@@ -16,6 +17,7 @@ class EditorScreen extends StatefulWidget {
 
 class _EditorScreenState extends State<EditorScreen> {
   final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _inputController = TextEditingController();
 
   @override
   void initState() {
@@ -33,7 +35,8 @@ class _EditorScreenState extends State<EditorScreen> {
 
   void _runCode() {
     final script = _codeController.text;
-    widget.editorViewModel.runCode(script).then((result) {
+    final input = _inputController.text;
+    widget.editorViewModel.runCode(script, input).then((result) {
       if (!mounted) return;
       switch (result) {
         case Ok():
@@ -122,6 +125,14 @@ class _EditorScreenState extends State<EditorScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: CodeEditorField(controller: _codeController),
+                ),
+              ),
+
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 150),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: InputEditorField(controller: _inputController),
                 ),
               ),
             ],

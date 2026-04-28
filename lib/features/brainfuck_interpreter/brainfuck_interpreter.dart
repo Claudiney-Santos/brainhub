@@ -1,8 +1,10 @@
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:brainhub/features/brainfuck_interpreter/brainfuck_code.dart';
 import 'package:brainhub/features/brainfuck_interpreter/brainfuck_exception.dart';
 import 'package:brainhub/utils/result.dart';
+import 'package:flutter/material.dart';
 
 class BrainfuckInterpreter {
   final int tapeSize;
@@ -18,7 +20,7 @@ class BrainfuckInterpreter {
     }
   }
 
-  Future<Result<String, BrainfuckException>> run(String script) async {
+  Future<Result<String, BrainfuckException>> run(String script, String input) async {
     final parsedResult = BrainfuckInterpreter.parse(script);
 
     switch (parsedResult) {
@@ -26,6 +28,14 @@ class BrainfuckInterpreter {
         break;
       case Err():
         return Result.err(parsedResult.error);
+    }
+
+    final inputQueue = Queue<String>();
+
+    for(final char in input.characters) {
+      if (char.codeUnitAt(0) < 256) {
+        inputQueue.add(char);
+      }
     }
 
     final bfCode = parsedResult.value;
@@ -61,7 +71,10 @@ class BrainfuckInterpreter {
             outputBuffer.write(String.fromCharCode(memory.getUint8(pointer)));
             break;
           case ',':
-            // Input is not implemented in this example
+            memory.setUint8(
+              pointer,
+              inputQueue.isNotEmpty ? inputQueue.removeFirst().codeUnitAt(0) : 0,
+            );
             break;
           case '[':
             if (memory.getUint8(pointer) == 0) {

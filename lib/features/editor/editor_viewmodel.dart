@@ -36,12 +36,12 @@ class EditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Result<(), String>> runCode(String script) async {
+  Future<Result<(), String>> runCode(String script, String input) async {
     _isRunning = true;
     showOutput = false;
     notifyListeners();
 
-    final result = await brainfuckInterpreter.run(script);
+    final result = await brainfuckInterpreter.run(script, input);
 
     switch (result) {
       case Ok():
