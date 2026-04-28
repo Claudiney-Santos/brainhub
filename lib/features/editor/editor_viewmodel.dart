@@ -28,11 +28,11 @@ class EditorViewModel extends ChangeNotifier {
   String? get name => project?.name;
 
   Future<void> loadProject() async {
-    if(projectId == null) {
+    if (projectId == null) {
       return;
     }
 
-    project = await projectsRepository.getProjectById(projectId!);
+    project = projectsRepository.getProjectById(projectId!);
     notifyListeners();
   }
 
@@ -43,7 +43,7 @@ class EditorViewModel extends ChangeNotifier {
 
     final result = await brainfuckInterpreter.run(script);
 
-    switch(result) {
+    switch (result) {
       case Ok():
         _output = result.value;
         break;
@@ -60,7 +60,7 @@ class EditorViewModel extends ChangeNotifier {
   }
 
   Future<Result<(), String>> saveProject(String newCode) async {
-    if(project == null) {
+    if (project == null) {
       return Result.err('No project loaded.');
     }
 
@@ -73,7 +73,6 @@ class EditorViewModel extends ChangeNotifier {
 
     _isSaving = false;
     notifyListeners();
-    print('Project saved: ${project!.name}');
 
     return Result.ok(());
   }

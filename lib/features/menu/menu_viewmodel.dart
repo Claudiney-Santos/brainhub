@@ -15,22 +15,21 @@ class MenuViewModel extends ChangeNotifier {
     : _projectsRepository = projectsRepository;
 
   List<Pair<String, Project>> get projectsList =>
-    projects.entries.map((entry) => Pair(entry.key, entry.value)).toList();
+      projects.entries.map((entry) => Pair(entry.key, entry.value)).toList();
 
   void load() async {
     isLoaded = false;
     projects = HashMap();
     final projectsMap = await _projectsRepository.loadProjects();
-    for(final id in projectsMap.keys) {
+    for (final id in projectsMap.keys) {
       projects[id] = projectsMap[id]!;
     }
     isLoaded = true;
-    print('Loaded projects: ${projects.keys.join(', ')}');
     notifyListeners();
   }
 
   Future<Result<(), String>> addProject(String projectName) async {
-    if(_projectsRepository.getProjectByName(projectName) != null) {
+    if (_projectsRepository.getProjectByName(projectName) != null) {
       return Result.err('"$projectName" already exists.');
     }
 
@@ -48,14 +47,11 @@ class MenuViewModel extends ChangeNotifier {
       final oldProject = _projectsRepository.getProjectById(id)!;
       final oldName = oldProject.name;
 
-      if(oldName == newName) {
+      if (oldName == newName) {
         return Result.ok(());
       }
 
       final newProject = Project(name: newName, code: oldProject.code);
-      print('Renaming project "$oldName" to "$newName"');
-      print('Project old content: ${oldProject.code}');
-      print('Project new content: ${newProject.code}');
 
       isLoaded = false;
       notifyListeners();
@@ -64,7 +60,7 @@ class MenuViewModel extends ChangeNotifier {
       load();
 
       return result;
-    } catch(e) {
+    } catch (e) {
       return Result.err(e.toString());
     }
   }
@@ -77,7 +73,7 @@ class MenuViewModel extends ChangeNotifier {
       await _projectsRepository.removeProject(id);
       load();
       return Result.ok(());
-    } catch(error) {
+    } catch (error) {
       return Result.err(error.toString());
     }
   }

@@ -28,8 +28,6 @@ class SettingsViewModel extends ChangeNotifier {
     _stepLimit = settingsRepository.stepLimit;
     _isLoaded = true;
     notifyListeners();
-
-    print('Loaded settings: themeMode=$_themeMode, fontSize=$_fontSize, tapeSize=$_tapeSize, stepLimit=$_stepLimit');
   }
 
   Future<void> updateThemeMode(ThemeMode newMode) async {

@@ -4,7 +4,6 @@ import 'package:brainhub/features/login/login_screen.dart';
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
 import 'package:brainhub/features/editor/editor_screen.dart';
-import 'package:brainhub/features/menu/menu_viewmodel.dart';
 import 'package:brainhub/features/settings/settings_screen.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/repositories/settings_repository.dart';
@@ -22,15 +21,11 @@ class AppRouter {
     routes: [
       GoRoute(
         path: AppRouter.login,
-        builder: (context, state) => LoginScreen(
-          viewModel: LoginViewModel(),
-        ),
+        builder: (context, state) => LoginScreen(viewModel: LoginViewModel()),
       ),
       GoRoute(
         path: AppRouter.menu,
-        builder: (context, state) => MenuScreen(
-          menuViewModel: context.read(),
-        ),
+        builder: (context, state) => MenuScreen(menuViewModel: context.read()),
       ),
       GoRoute(
         path: AppRouter.editor,
@@ -38,7 +33,6 @@ class AppRouter {
           final projectId = state.uri.queryParameters['id'];
           final projectsRepository = context.read<ProjectsRepository>();
           final settings = context.read<SettingsRepository>();
-          print('Navigating to editor with project ID: $projectId');
           return EditorScreen(
             editorViewModel: EditorViewModel(
               projectsRepository: projectsRepository,
@@ -46,16 +40,15 @@ class AppRouter {
               brainfuckInterpreter: BrainfuckInterpreter(
                 tapeSize: settings.tapeSize,
                 stepLimit: settings.stepLimit,
-              )
+              ),
             ),
           );
         },
       ),
       GoRoute(
         path: AppRouter.settings,
-        builder: (context, state) => SettingsScreen(
-          settingsViewModel: context.read(),
-        ),
+        builder: (context, state) =>
+            SettingsScreen(settingsViewModel: context.read()),
       ),
     ],
   );
