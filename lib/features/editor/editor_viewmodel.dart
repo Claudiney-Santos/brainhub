@@ -45,10 +45,14 @@ class EditorViewModel extends ChangeNotifier {
 
     switch (result) {
       case Ok():
-        _output = result.value;
+        if(result.value.isEmpty) {
+          _output = '[No output]';
+        } else {
+          _output = result.value;
+        }
         break;
       case Err():
-        _output = 'Error: ${result.error}';
+        _output = 'Error: ${result.error.message}';
         break;
     }
 
