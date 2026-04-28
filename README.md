@@ -41,4 +41,4 @@ flutter build apk
 O arquivo executável estará disponível em `build/app/outputs/apk/release/app-release.apk`. Para a instalação do aplicativo, transfira esse arquivo para seu dispositivo android e realize a instalação. Use um dispositivo com versão Android 12 ou superior.
 
 ## Builds
-É possível baixar o aplicativo (para android ou linux) pelos [releases](https://github.com/Claudiney-Santos/brainhub/releases/tag/v1.0.0-alpha)
+É possível baixar o aplicativo (para android ou linux) pelos [releases](https://github.com/Claudiney-Santos/brainhub/releases/tag/v1.0.0-alpha-fix)
