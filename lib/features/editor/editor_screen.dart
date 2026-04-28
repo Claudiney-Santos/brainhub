@@ -115,15 +115,15 @@ class _EditorScreenState extends State<EditorScreen> {
           ),
           body: Column(
             children: [
+              if (vm.showOutput && vm.output != null)
+                OutputBox(output: vm.output!, onClose: () => vm.closeOutput()),
+
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: CodeEditorField(controller: _codeController),
                 ),
               ),
-
-              if (vm.showOutput && vm.output != null)
-                OutputBox(output: vm.output!, onClose: () => vm.closeOutput()),
             ],
           ),
         );
