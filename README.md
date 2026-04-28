@@ -25,7 +25,7 @@ Esta aplicação foi desenvolvida com Flutter.
 - Implementação da função de input do interpretador de brainfuck;
 
 ## Compilação
-A aplicação foi desenvolvida com Flutter, versão 3.41.6. Siga o (Guia Rápido do Flutter)[https://docs.flutter.dev/install/quick] para a configuração do ambiente.
+A aplicação foi desenvolvida com Flutter, versão 3.41.6. Siga o [Guia Rápido do Flutter](https://docs.flutter.dev/install/quick) para a configuração do ambiente.
 As plataformas principais para a aplicação são Android e Linux. Siga a documentação do Flutter para configurar esses ambientes.
 Para a compilação da versão do Android, certifique-se de utilizar a versão 17 ou superior do JDK.
 
