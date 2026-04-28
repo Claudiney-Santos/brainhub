@@ -5,6 +5,7 @@ import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
 
 class EditorViewModel extends ChangeNotifier {
+  final BrainfuckInterpreter brainfuckInterpreter;
   final ProjectsRepository projectsRepository;
   final String? projectId;
   Project? project;
@@ -20,6 +21,7 @@ class EditorViewModel extends ChangeNotifier {
   EditorViewModel({
     required this.projectsRepository,
     required this.projectId,
+    required this.brainfuckInterpreter,
   });
 
   String? get code => project?.code;
@@ -39,7 +41,7 @@ class EditorViewModel extends ChangeNotifier {
     showOutput = false;
     notifyListeners();
 
-    final result = await BrainfuckInterpreter.run(script);
+    final result = await brainfuckInterpreter.run(script);
 
     switch(result) {
       case Ok():
