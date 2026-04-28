@@ -25,10 +25,12 @@ class SettingsRepository extends ChangeNotifier {
   Future<void> updateTapeSize(int newSize) async {
     if(_tapeSize == newSize) return;
     _tapeSize = newSize;
+    notifyListeners();
   }
 
   Future<void> updateStepLimit(int newLimit) async {
     if(_stepLimit == newLimit) return;
     _stepLimit = newLimit;
+    notifyListeners();
   }
 }
