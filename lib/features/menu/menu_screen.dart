@@ -1,15 +1,13 @@
 import 'package:brainhub/features/menu/menu_viewmodel.dart';
 import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
-import 'package:brainhub/models/project.dart';
 import 'package:brainhub/router/app_router.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class MenuScreen extends StatefulWidget {
   final MenuViewModel menuViewModel;
 
-  MenuScreen({super.key, required this.menuViewModel});
+  const MenuScreen({super.key, required this.menuViewModel});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -53,7 +51,8 @@ class _MenuScreenState extends State<MenuScreen> {
     if (name.isEmpty) return;
 
     widget.menuViewModel.addProject(name).then((result) {
-      switch(result) {
+      if (!mounted) return;
+      switch (result) {
         case Ok():
           break;
         case Err():
@@ -68,7 +67,9 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   void _renameSketch(String id) {
-    final controller = TextEditingController(text: widget.menuViewModel.projects[id]!.name);
+    final controller = TextEditingController(
+      text: widget.menuViewModel.projects[id]!.name,
+    );
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -98,7 +99,8 @@ class _MenuScreenState extends State<MenuScreen> {
     if (name.isEmpty) return;
 
     widget.menuViewModel.renameProject(id, name).then((result) {
-      switch(result) {
+      if (!mounted) return;
+      switch (result) {
         case Ok():
           break;
         case Err():
@@ -114,7 +116,9 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void _deleteSketch(String id) async {
     widget.menuViewModel.deleteProject(id).then((result) {
-      switch(result) {
+      if (!mounted) return;
+
+      switch (result) {
         case Ok():
           break;
         case Err():
@@ -134,7 +138,6 @@ class _MenuScreenState extends State<MenuScreen> {
       listenable: vm,
       builder: (context, child) {
         final projects = vm.projectsList;
-        print('Building MenuScreen with projects: ${projects.map((p) => p.second.name).join(', ')}');
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
@@ -164,15 +167,14 @@ class _MenuScreenState extends State<MenuScreen> {
               ),
               Expanded(
                 child: !vm.isLoaded
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : projects.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : projects.isEmpty
                     ? Center(
                         child: Text(
                           'No projects yet.',
                           style: TextStyle(
-                            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                       )
@@ -189,7 +191,9 @@ class _MenuScreenState extends State<MenuScreen> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -205,16 +209,20 @@ class _MenuScreenState extends State<MenuScreen> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit_outlined),
-                                    onPressed: () => _renameSketch(projects[index].first),
+                                    onPressed: () =>
+                                        _renameSketch(projects[index].first),
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete_outline),
                                     color: theme.colorScheme.error,
-                                    onPressed: () => _deleteSketch(projects[index].first),
+                                    onPressed: () =>
+                                        _deleteSketch(projects[index].first),
                                   ),
                                 ],
                               ),
-                              onTap: () => context.push("${AppRouter.editor}?id=${projects[index].first}"),
+                              onTap: () => context.push(
+                                "${AppRouter.editor}?id=${projects[index].first}",
+                              ),
                             ),
                           );
                         },

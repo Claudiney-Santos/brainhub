@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:brainhub/features/brainfuck_interpreter/brainfuck_code.dart';
@@ -12,11 +11,11 @@ class BrainfuckInterpreter {
   BrainfuckInterpreter({required this.tapeSize, required this.stepLimit});
 
   static Result<BrainfuckCode, BrainfuckException> parse(String code) {
-      try {
-        return Result.ok(BrainfuckCode(code));
-      } on BrainfuckException catch (e) {
-        return Result.err(e);
-      }
+    try {
+      return Result.ok(BrainfuckCode(code));
+    } on BrainfuckException catch (e) {
+      return Result.err(e);
+    }
   }
 
   Future<Result<String, BrainfuckException>> run(String script) async {
@@ -41,7 +40,7 @@ class BrainfuckInterpreter {
 
     try {
       while (programCounter < code.length) {
-        if(stepCounter >= stepLimit) {
+        if (stepCounter >= stepLimit) {
           throw StackOverflowError();
         }
         final command = code[programCounter];
@@ -78,13 +77,16 @@ class BrainfuckInterpreter {
         programCounter++;
         stepCounter++;
       }
-      print("Execution completed in $stepCounter steps at index $pointer in memory.");
-    } catch(e) {
-      switch(e) {
+    } catch (e) {
+      switch (e) {
         case RangeError():
-          return Result.err(BrainfuckException('exceeded tape length $tapeSize'));
+          return Result.err(
+            BrainfuckException('exceeded tape length $tapeSize'),
+          );
         case StackOverflowError():
-          return Result.err(BrainfuckException('exceeded step limit $stepLimit'));
+          return Result.err(
+            BrainfuckException('exceeded step limit $stepLimit'),
+          );
         default:
           return Result.err(BrainfuckException(e.toString()));
       }

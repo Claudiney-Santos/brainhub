@@ -1,11 +1,9 @@
 import 'package:brainhub/features/editor/editor_viewmodel.dart';
-import 'package:brainhub/router/app_router.dart';
 import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:brainhub/widgets/code_editor_field.dart';
 import 'package:brainhub/widgets/output_box.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class EditorScreen extends StatefulWidget {
   final EditorViewModel editorViewModel;
@@ -19,6 +17,7 @@ class EditorScreen extends StatefulWidget {
 class _EditorScreenState extends State<EditorScreen> {
   final TextEditingController _codeController = TextEditingController();
 
+  @override
   void initState() {
     super.initState();
     widget.editorViewModel.loadProject().then((_) {
@@ -35,7 +34,8 @@ class _EditorScreenState extends State<EditorScreen> {
   void _runCode() {
     final script = _codeController.text;
     widget.editorViewModel.runCode(script).then((result) {
-      switch(result) {
+      if (!mounted) return;
+      switch (result) {
         case Ok():
           break;
         case Err():
@@ -49,7 +49,8 @@ class _EditorScreenState extends State<EditorScreen> {
 
   void _saveProject(String newCode) {
     widget.editorViewModel.saveProject(newCode).then((result) {
-      switch(result) {
+      if (!mounted) return;
+      switch (result) {
         case Ok():
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully!')),
@@ -122,15 +123,11 @@ class _EditorScreenState extends State<EditorScreen> {
               ),
 
               if (vm.showOutput && vm.output != null)
-                OutputBox(
-                  output: vm.output!,
-                  onClose: () => vm.closeOutput(),
-                ),
+                OutputBox(output: vm.output!, onClose: () => vm.closeOutput()),
             ],
           ),
         );
-      }
+      },
     );
   }
 }
-
