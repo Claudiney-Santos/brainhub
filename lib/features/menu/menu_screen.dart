@@ -180,6 +180,53 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
+  void _showQrScanner(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.qr_code_rounded,
+                  size: 40,
+                  color: theme.colorScheme.primary,
+                ),
+
+                const SizedBox(height: 16),
+
+                Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(child: Icon(Icons.videocam, size: 100)),
+                ),
+
+                const SizedBox(height: 20),
+
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = widget.menuViewModel;
@@ -196,6 +243,10 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             title: const Text('Projects'),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt_rounded),
+                onPressed: () => _showQrScanner(context),
+              ),
               IconButton(
                 icon: const Icon(Icons.settings_outlined),
                 onPressed: () => context.push(AppRouter.settings),
