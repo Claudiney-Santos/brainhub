@@ -17,12 +17,11 @@ Esta aplicação foi desenvolvida com Flutter.
 - Tela de configurações;
 - Tela de menu para criação, seleção e exclusão de scripts de brainfuck;
 - Tela de edição de scripts de brainfuck;
-- Interpretador de código em brainfuck (parcial);
+- Interpretador de código em brainfuck;
 
 ### Funcionalidades ainda a serem implementadas
 - Implementação de database para persistência de dados dos usuários e scripts de brainfuck;
 - Geração e leitura de código QR dos scripts de brainfuck;
-- Implementação da função de input do interpretador de brainfuck;
 
 ## Compilação
 A aplicação foi desenvolvida com Flutter, versão 3.41.6. Siga o [Guia Rápido do Flutter](https://docs.flutter.dev/install/quick) para a configuração do ambiente.
