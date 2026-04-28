@@ -124,7 +124,7 @@ class _EditorScreenState extends State<EditorScreen> {
               if (vm.showOutput && vm.output != null)
                 OutputBox(
                   output: vm.output!,
-                  onClose: () => vm.showOutput = false,
+                  onClose: () => vm.closeOutput(),
                 ),
             ],
           ),

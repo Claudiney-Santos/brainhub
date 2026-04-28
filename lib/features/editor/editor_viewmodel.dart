@@ -77,4 +77,9 @@ class EditorViewModel extends ChangeNotifier {
 
     return Result.ok(());
   }
+
+  void closeOutput() {
+    showOutput = false;
+    notifyListeners();
+  }
 }
