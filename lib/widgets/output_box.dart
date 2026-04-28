@@ -43,9 +43,14 @@ class OutputBox extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Text(
-                output,
-                style: const TextStyle(fontFamily: 'monospace'),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 100),
+                child: SingleChildScrollView(
+                  child: Text(
+                    output,
+                    style: const TextStyle(fontFamily: 'monospace'),
+                  ),
+                ),
               ),
             ),
           ],
