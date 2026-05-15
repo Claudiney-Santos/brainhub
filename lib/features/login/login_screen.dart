@@ -1,7 +1,6 @@
 import 'package:brainhub/features/login/login_viewmodel.dart';
 import 'package:brainhub/router/app_router.dart';
 import 'package:brainhub/utils/result.dart';
-import 'package:brainhub/widgets/auth_button.dart';
 import 'package:brainhub/widgets/login_form.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   Future<void> _login(String email, String password) async {
-    if(widget.viewModel.isLoading) return;
+    if (widget.viewModel.isLoading) return;
     final response = await widget.viewModel.login(
       email: email,
       password: password,
@@ -28,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
-    switch(response) {
+    switch (response) {
       case Ok():
         context.go(AppRouter.menu);
         break;
@@ -62,7 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(Icons.code, size: 64, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.code,
+                    size: 64,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'BrainHub',
@@ -77,7 +80,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Your esoteric code manager',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.8,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -87,14 +92,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   OutlinedButton(
                     onPressed: () {
-                      if(vm.isLoading) return;
+                      if (vm.isLoading) return;
                       context.push(AppRouter.register);
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: theme.colorScheme.secondary,
                       side: BorderSide(color: theme.colorScheme.secondary),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: const Text('Create an account'),
                   ),
@@ -103,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         );
-      }
+      },
     );
   }
 }
