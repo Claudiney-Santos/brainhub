@@ -3,60 +3,69 @@ import 'dart:collection';
 import 'package:brainhub/models/project.dart';
 import 'package:brainhub/utils/id_generator.dart';
 import 'package:brainhub/utils/result.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 class ProjectsRepository {
-  final HashMap<String, Project> _projects = HashMap();
+  static const _boxName = 'projects';
 
-  UnmodifiableMapView<String, Project> get projects => UnmodifiableMapView(_projects);
+  late final Box<Project> _box;
 
-  Project? getProjectById(String id) {
-    return _projects[id];
+  Future<void> init() async {
+    _box = await Hive.openBox<Project>(_boxName);
   }
+
+  UnmodifiableMapView<String, Project> get projects => UnmodifiableMapView(
+    Map.fromEntries(
+      _box.keys.cast<String>().map((k) => MapEntry(k, _box.get(k)!)),
+    ),
+  );
+
+  Project? getProjectById(String id) => _box.get(id);
 
   Project? getProjectByName(String name) {
     try {
-      return _projects.values.firstWhere((project) => project.name == name);
-    } catch (e) {
+      return _box.values.firstWhere((p) => p.name == name);
+    } catch (_) {
       return null;
     }
   }
 
   Future<UnmodifiableMapView<String, Project>> loadProjects() async {
-    await Future.delayed(const Duration(seconds: 1));
     return projects;
   }
 
   Future<Result<(), String>> addProject(String projectName) async {
-    await Future.delayed(const Duration(seconds: 1));
-    if(getProjectByName(projectName) != null) {
+    if (getProjectByName(projectName) != null) {
       return Result.err('Project with the same name already exists');
     }
     final id = IdGenerator.generateId();
-    _projects[id] = Project(name: projectName, code: "");
+    await _box.put(id, Project(name: projectName, code: ''));
     return Result.ok(());
   }
 
   Future<void> removeProject(String id) async {
-    await Future.delayed(const Duration(seconds: 1));
-    _projects.remove(id);
+    await _box.delete(id);
   }
 
-  Future<Result<(), String>> updateProject(String id, Project newProject) async {
-    await Future.delayed(const Duration(seconds: 1));
+  Future<Result<(), String>> updateProject(
+    String id,
+    Project newProject,
+  ) async {
     try {
-      final oldProject = _projects[id]!;
+      final oldProject = _box.get(id);
+      if (oldProject == null) return Result.err('Project not found');
 
       final oldName = oldProject.name;
       final newName = newProject.name;
-      if(oldName != newName && _projects.values.any((project) => project.name == newName)) {
+      if (oldName != newName && _box.values.any((p) => p.name == newName)) {
         return Result.err('"$newName" already exists');
       }
 
-      _projects[id] = newProject;
-
+      await _box.put(id, newProject);
       return Result.ok(());
     } catch (e) {
       return Result.err(e.toString());
     }
   }
 }
+
