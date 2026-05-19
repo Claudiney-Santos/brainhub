@@ -5,6 +5,7 @@ import 'package:brainhub/router/app_router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:brainhub/widgets/project_list_item.dart';
 import 'package:brainhub/models/project.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MenuScreen extends StatefulWidget {
   final MenuViewModel menuViewModel;
@@ -61,17 +62,14 @@ class _MenuScreenState extends State<MenuScreen> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(result.error)));
-          break;
       }
     });
 
     Navigator.of(context).pop();
   }
 
-  void _renameSketch(String id) {
-    final controller = TextEditingController(
-      text: widget.menuViewModel.projects[id]!.name,
-    );
+  void _renameSketch(String id, String currentName) {
+    final controller = TextEditingController(text: currentName);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -96,7 +94,7 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _confirmRename(String id, String input) async {
+  void _confirmRename(String id, String input) {
     final name = input.trim();
     if (name.isEmpty) return;
 
@@ -109,17 +107,15 @@ class _MenuScreenState extends State<MenuScreen> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(result.error)));
-          break;
       }
     });
 
     Navigator.of(context).pop();
   }
 
-  void _deleteSketch(String id) async {
+  void _deleteSketch(String id) {
     widget.menuViewModel.deleteProject(id).then((result) {
       if (!mounted) return;
-
       switch (result) {
         case Ok():
           break;
@@ -127,7 +123,6 @@ class _MenuScreenState extends State<MenuScreen> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(result.error)));
-          break;
       }
     });
   }
@@ -137,7 +132,6 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       builder: (context) {
         final theme = Theme.of(context);
-
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -152,9 +146,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   style: theme.textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
-
                 const SizedBox(height: 20),
-
                 Container(
                   width: 220,
                   height: 220,
@@ -164,9 +156,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   child: const Center(child: Icon(Icons.qr_code_2, size: 120)),
                 ),
-
                 const SizedBox(height: 20),
-
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
@@ -185,7 +175,6 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       builder: (context) {
         final theme = Theme.of(context);
-
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -200,9 +189,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   size: 40,
                   color: theme.colorScheme.primary,
                 ),
-
                 const SizedBox(height: 16),
-
                 Container(
                   width: 260,
                   height: 260,
@@ -212,9 +199,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   child: const Center(child: Icon(Icons.videocam, size: 100)),
                 ),
-
                 const SizedBox(height: 20),
-
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close),
@@ -227,6 +212,12 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
+  Future<void> _logout() async {
+    await Supabase.instance.client.auth.signOut();
+    if (!mounted) return;
+    context.go(AppRouter.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = widget.menuViewModel;
@@ -234,12 +225,12 @@ class _MenuScreenState extends State<MenuScreen> {
     return ListenableBuilder(
       listenable: vm,
       builder: (context, child) {
-        final projects = vm.projectsList;
+        final projects = vm.projects;
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.logout_outlined),
-              onPressed: () => context.go(AppRouter.login),
+              onPressed: _logout,
             ),
             title: const Text('Projects'),
             actions: [
@@ -282,16 +273,16 @@ class _MenuScreenState extends State<MenuScreen> {
                     : ListView.builder(
                         itemCount: projects.length,
                         itemBuilder: (context, index) {
-                          final id = projects[index].first;
-                          final project = projects[index].second;
-
+                          final project = projects[index];
                           return ProjectListItem(
-                            id: id,
+                            id: project.id,
                             project: project,
-                            onRename: () => _renameSketch(id),
-                            onDelete: () => _deleteSketch(id),
-                            onOpen: () =>
-                                context.push("${AppRouter.editor}?id=$id"),
+                            onRename: () =>
+                                _renameSketch(project.id, project.name),
+                            onDelete: () => _deleteSketch(project.id),
+                            onOpen: () => context.push(
+                              '${AppRouter.editor}?id=${project.id}',
+                            ),
                             onShowQr: () => _showQr(context, project),
                           );
                         },

@@ -4,12 +4,9 @@ import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/repositories/settings_repository.dart';
 import 'package:provider/provider.dart';
 
-List buildProviders({
-  required ProjectsRepository projectsRepository,
-  required SettingsRepository settingsRepository,
-}) {
+List buildProviders({required SettingsRepository settingsRepository}) {
   return [
-    Provider<ProjectsRepository>.value(value: projectsRepository),
+    Provider<ProjectsRepository>(create: (_) => ProjectsRepository()),
     ChangeNotifierProvider<SettingsRepository>.value(value: settingsRepository),
     ChangeNotifierProvider<MenuViewModel>(
       create: (context) =>

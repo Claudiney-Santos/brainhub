@@ -1,50 +1,68 @@
 import 'dart:collection';
 
 import 'package:brainhub/models/project.dart';
-import 'package:brainhub/utils/id_generator.dart';
 import 'package:brainhub/utils/result.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProjectsRepository {
-  static const _boxName = 'projects';
+  final _client = Supabase.instance.client;
+  static const _table = 'projects';
 
-  late final Box<Project> _box;
+  String get _userId => _client.auth.currentUser!.id;
 
-  Future<void> init() async {
-    _box = await Hive.openBox<Project>(_boxName);
+  Future<UnmodifiableListView<Project>> loadProjects() async {
+    final data = await _client
+        .from(_table)
+        .select()
+        .eq('user_id', _userId)
+        .eq('is_deleted', false)
+        .order('created_at');
+
+    final projects = (data as List).map((e) => Project.fromMap(e)).toList();
+    return UnmodifiableListView(projects);
   }
 
-  UnmodifiableMapView<String, Project> get projects => UnmodifiableMapView(
-    Map.fromEntries(
-      _box.keys.cast<String>().map((k) => MapEntry(k, _box.get(k)!)),
-    ),
-  );
-
-  Project? getProjectById(String id) => _box.get(id);
-
-  Project? getProjectByName(String name) {
+  Project? getProjectByName(List<Project> projects, String name) {
     try {
-      return _box.values.firstWhere((p) => p.name == name);
+      return projects.firstWhere((p) => p.name == name);
     } catch (_) {
       return null;
     }
   }
 
-  Future<UnmodifiableMapView<String, Project>> loadProjects() async {
-    return projects;
-  }
-
   Future<Result<(), String>> addProject(String projectName) async {
-    if (getProjectByName(projectName) != null) {
-      return Result.err('Project with the same name already exists');
+    try {
+      final existing = await _client
+          .from(_table)
+          .select()
+          .eq('user_id', _userId)
+          .eq('name', projectName)
+          .eq('is_deleted', false)
+          .maybeSingle();
+
+      if (existing != null) {
+        return Result.err('Project with the same name already exists');
+      }
+
+      await _client.from(_table).insert({
+        'user_id': _userId,
+        'name': projectName,
+        'code': '',
+        'is_deleted': false,
+      });
+
+      return Result.ok(());
+    } catch (e) {
+      return Result.err(e.toString());
     }
-    final id = IdGenerator.generateId();
-    await _box.put(id, Project(name: projectName, code: ''));
-    return Result.ok(());
   }
 
   Future<void> removeProject(String id) async {
-    await _box.delete(id);
+    await _client
+        .from(_table)
+        .update({'is_deleted': true})
+        .eq('id', id)
+        .eq('user_id', _userId);
   }
 
   Future<Result<(), String>> updateProject(
@@ -52,20 +70,27 @@ class ProjectsRepository {
     Project newProject,
   ) async {
     try {
-      final oldProject = _box.get(id);
-      if (oldProject == null) return Result.err('Project not found');
+      final existing = await _client
+          .from(_table)
+          .select()
+          .eq('user_id', _userId)
+          .eq('name', newProject.name)
+          .eq('is_deleted', false)
+          .neq('id', id)
+          .maybeSingle();
 
-      final oldName = oldProject.name;
-      final newName = newProject.name;
-      if (oldName != newName && _box.values.any((p) => p.name == newName)) {
-        return Result.err('"$newName" already exists');
+      if (existing != null) {
+        return Result.err('"${newProject.name}" already exists');
       }
 
-      await _box.put(id, newProject);
+      await _client
+          .from(_table)
+          .update({'name': newProject.name, 'code': newProject.code})
+          .eq('id', id);
+
       return Result.ok(());
     } catch (e) {
       return Result.err(e.toString());
     }
   }
 }
-

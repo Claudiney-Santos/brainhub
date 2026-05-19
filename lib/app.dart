@@ -1,5 +1,4 @@
 import 'package:brainhub/providers.dart';
-import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/repositories/settings_repository.dart';
 import 'package:brainhub/router/app_router.dart';
 import 'package:brainhub/theme.dart';
@@ -7,22 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class BrainHubApp extends StatelessWidget {
-  final ProjectsRepository projectsRepository;
   final SettingsRepository settingsRepository;
 
-  const BrainHubApp({
-    super.key,
-    required this.projectsRepository,
-    required this.settingsRepository,
-  });
+  const BrainHubApp({super.key, required this.settingsRepository});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: buildProviders(
-        projectsRepository: projectsRepository,
-        settingsRepository: settingsRepository,
-      ).cast(),
+      providers: buildProviders(settingsRepository: settingsRepository).cast(),
       child: Consumer<SettingsRepository>(
         builder: (context, settings, child) {
           return MaterialApp.router(
