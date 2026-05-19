@@ -11,6 +11,7 @@ import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/repositories/settings_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -21,6 +22,16 @@ class AppRouter {
 
   static final GoRouter routes = GoRouter(
     initialLocation: AppRouter.login,
+    redirect: (context, state) {
+      final session = Supabase.instance.client.auth.currentSession;
+      final isLoggedIn = session != null;
+      final isAuthRoute =
+          state.matchedLocation == login || state.matchedLocation == register;
+
+      if (!isLoggedIn && !isAuthRoute) return login;
+      if (isLoggedIn && isAuthRoute) return menu;
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRouter.login,
@@ -28,9 +39,8 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRouter.register,
-        builder: (context, state) => RegisterScreen(
-          viewModel: RegisterViewModel(),
-        ),
+        builder: (context, state) =>
+            RegisterScreen(viewModel: RegisterViewModel()),
       ),
       GoRoute(
         path: AppRouter.menu,
@@ -62,3 +72,4 @@ class AppRouter {
     ],
   );
 }
+
