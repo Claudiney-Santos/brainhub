@@ -8,6 +8,7 @@ class EditorViewModel extends ChangeNotifier {
   final BrainfuckInterpreter brainfuckInterpreter;
   final ProjectsRepository projectsRepository;
   final String? projectId;
+
   Project? project;
   bool showOutput = false;
   bool _isRunning = false;
@@ -17,6 +18,8 @@ class EditorViewModel extends ChangeNotifier {
   bool get isRunning => _isRunning;
   bool get isSaving => _isSaving;
   String? get output => _output;
+  String? get code => project?.code;
+  String? get name => project?.name;
 
   EditorViewModel({
     required this.projectsRepository,
@@ -24,15 +27,14 @@ class EditorViewModel extends ChangeNotifier {
     required this.brainfuckInterpreter,
   });
 
-  String? get code => project?.code;
-  String? get name => project?.name;
-
   Future<void> loadProject() async {
-    if (projectId == null) {
-      return;
+    if (projectId == null) return;
+    final projects = await projectsRepository.loadProjects();
+    try {
+      project = projects.firstWhere((p) => p.id == projectId);
+    } catch (_) {
+      project = null;
     }
-
-    project = projectsRepository.getProjectById(projectId!);
     notifyListeners();
   }
 
@@ -42,43 +44,38 @@ class EditorViewModel extends ChangeNotifier {
     notifyListeners();
 
     final result = await brainfuckInterpreter.run(script, input);
-
     switch (result) {
       case Ok():
-        if(result.value.isEmpty) {
-          _output = '[No output]';
-        } else {
-          _output = result.value;
-        }
-        break;
+        _output = result.value.isEmpty ? '[No output]' : result.value;
       case Err():
         _output = 'Error: ${result.error.message}';
-        break;
     }
 
     _isRunning = false;
     showOutput = true;
     notifyListeners();
-
     return Result.ok(());
   }
 
   Future<Result<(), String>> saveProject(String newCode) async {
-    if (project == null) {
-      return Result.err('No project loaded.');
-    }
+    if (project == null) return Result.err('No project loaded.');
 
     _isSaving = true;
     notifyListeners();
 
-    final updatedProject = Project(name: project!.name, code: newCode);
-    await projectsRepository.updateProject(projectId!, updatedProject);
-    project = updatedProject;
+    final updatedProject = project!.copyWith(code: newCode);
+    final result = await projectsRepository.updateProject(
+      projectId!,
+      updatedProject,
+    );
+
+    if (result is Ok) {
+      project = updatedProject;
+    }
 
     _isSaving = false;
     notifyListeners();
-
-    return Result.ok(());
+    return result;
   }
 
   void closeOutput() {
