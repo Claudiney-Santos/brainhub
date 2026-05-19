@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
   final LoginViewModel viewModel;
-
   const LoginScreen({super.key, required this.viewModel});
 
   @override
@@ -24,18 +23,14 @@ class _LoginScreenState extends State<LoginScreen> {
       email: email,
       password: password,
     );
-
     if (!mounted) return;
-
     switch (response) {
       case Ok():
         context.go(AppRouter.menu);
-        break;
-      case Err():
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid email or password')),
-        );
-        break;
+      case Err(:final error):
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error)));
     }
   }
 
@@ -87,9 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 48),
                   LoginForm(onLogin: _login, isLoading: vm.isLoading),
-
                   const SizedBox(height: 16),
-
                   OutlinedButton(
                     onPressed: () {
                       if (vm.isLoading) return;

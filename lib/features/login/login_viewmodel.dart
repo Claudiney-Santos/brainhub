@@ -1,25 +1,31 @@
 import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  bool _isLoading = false;
-  LoginViewModel();
+  final _client = Supabase.instance.client;
 
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  Future<Result<(), String>> login({required String email, required String password}) async {
+  Future<Result<(), String>> login({
+    required String email,
+    required String password,
+  }) async {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    _isLoading = false;
-    notifyListeners();
-
-    if(email == 'exemplo@email.com' && password == 'senha123') {
+    try {
+      await _client.auth.signInWithPassword(email: email, password: password);
       return Result.ok(());
-    } else {
-      return Result.err('Invalid email or password');
+    } on AuthException catch (e) {
+      return Result.err(e.message);
+    } catch (e) {
+      return Result.err('Unexpected error. Try again.');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }
+
