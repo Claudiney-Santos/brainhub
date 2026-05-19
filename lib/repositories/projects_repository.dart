@@ -58,7 +58,11 @@ class ProjectsRepository {
   }
 
   Future<void> removeProject(String id) async {
-    await _client.from(_table).update({'is_deleted': true}).eq('id', id);
+    await _client
+        .from(_table)
+        .update({'is_deleted': true})
+        .eq('id', id)
+        .eq('user_id', _userId);
   }
 
   Future<Result<(), String>> updateProject(
