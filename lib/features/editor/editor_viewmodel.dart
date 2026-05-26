@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:brainhub/features/brainfuck_interpreter/brainfuck_interpreter.dart';
 import 'package:brainhub/models/project.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
@@ -14,6 +15,8 @@ class EditorViewModel extends ChangeNotifier {
   bool _isRunning = false;
   bool _isSaving = false;
   String? _output;
+  String? _pendingCode;
+  Timer? _autoSaveTimer;
 
   bool get isRunning => _isRunning;
   bool get isSaving => _isSaving;
@@ -36,6 +39,25 @@ class EditorViewModel extends ChangeNotifier {
       project = null;
     }
     notifyListeners();
+  }
+
+  void startAutoSaveTimer() {
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = Timer.periodic(const Duration(minutes: 5), (_) {
+      if (_pendingCode != null) {
+        saveProject(_pendingCode!);
+      }
+    });
+  }
+
+  void updatePendingCode(String code) {
+    _pendingCode = code;
+  }
+
+  Future<void> saveIfNeeded() async {
+    if (_pendingCode == null) return;
+    if (_pendingCode == project?.code) return;
+    await saveProject(_pendingCode!);
   }
 
   Future<Result<(), String>> runCode(String script, String input) async {
@@ -71,6 +93,7 @@ class EditorViewModel extends ChangeNotifier {
 
     if (result is Ok) {
       project = updatedProject;
+      _pendingCode = null;
     }
 
     _isSaving = false;
@@ -82,4 +105,11 @@ class EditorViewModel extends ChangeNotifier {
     showOutput = false;
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    _autoSaveTimer?.cancel();
+    super.dispose();
+  }
 }
+

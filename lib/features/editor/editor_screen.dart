@@ -18,19 +18,32 @@ class EditorScreen extends StatefulWidget {
 class _EditorScreenState extends State<EditorScreen> {
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _inputController = TextEditingController();
+  late final AppLifecycleListener _lifecycleListener;
 
   @override
   void initState() {
     super.initState();
+
     widget.editorViewModel.loadProject().then((_) {
       _codeController.text = widget.editorViewModel.code ?? '';
     });
+
+    _codeController.addListener(_onCodeChanged);
+    widget.editorViewModel.startAutoSaveTimer();
+    _lifecycleListener = AppLifecycleListener(onInactive: _onAppInactive);
   }
 
-  @override
-  void dispose() {
-    _codeController.dispose();
-    super.dispose();
+  void _onCodeChanged() {
+    widget.editorViewModel.updatePendingCode(_codeController.text);
+  }
+
+  Future<void> _onAppInactive() async {
+    await widget.editorViewModel.saveIfNeeded();
+  }
+
+  Future<void> _goBack() async {
+    await widget.editorViewModel.saveIfNeeded();
+    if (mounted) context.pop();
   }
 
   void _runCode() {
@@ -69,6 +82,15 @@ class _EditorScreenState extends State<EditorScreen> {
   }
 
   @override
+  void dispose() {
+    _codeController.removeListener(_onCodeChanged);
+    _codeController.dispose();
+    _inputController.dispose();
+    _lifecycleListener.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final vm = widget.editorViewModel;
     return ListenableBuilder(
@@ -78,7 +100,7 @@ class _EditorScreenState extends State<EditorScreen> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.pop(),
+              onPressed: _goBack,
             ),
             title: const Text('Editor'),
             actions: [
