@@ -1,6 +1,6 @@
 # Brainhub
 Aplicativo desenvolvido para obtenção de nota na disciplina de "Programação de Dispositivos Móveis".
-Esta aplicação foi desenvolvida com Flutter.
+Esta aplicação foi desenvolvida com Flutter. Para salvamento em nuvem dos scripts, foi utilizado Supabase. Para salvamento local das configurações de usuário, foi utilizado Hive.
 
 ## Equipe
 - Claudiney Gustavo Rodrigues dos Santos
@@ -8,19 +8,20 @@ Esta aplicação foi desenvolvida com Flutter.
 
 ### Divisão geral de tarefas
 - Claudiney Gustavo Rodrigues dos Santos: Implementação dos repositories, providers e do interpretador de brainfuck.
-- Thales Janisch Santos: Definição do design da aplicação, implementação da estrutura estática das telas.
+- Thales Janisch Santos: Definição do design da aplicação, implementação da estrutura estática das telas, implementação do banco de dados.
 
 ## Funcionalidades
 
 ### Funcionalidades implementadas
-- Tela de login e registro de usuários (ainda sem persistência de dados);
+- Tela de login e registro de usuários;
 - Tela de configurações;
 - Tela de menu para criação, seleção e exclusão de scripts de brainfuck;
 - Tela de edição de scripts de brainfuck;
 - Interpretador de código em brainfuck;
+- Salvamento local de configurações;
+- Salvamento em nuvem de scripts;
 
 ### Funcionalidades ainda a serem implementadas
-- Implementação de database para persistência de dados dos usuários e scripts de brainfuck;
 - Geração e leitura de código QR dos scripts de brainfuck;
 
 ## Compilação
@@ -41,4 +42,4 @@ flutter build apk
 O arquivo executável estará disponível em `build/app/outputs/apk/release/app-release.apk`. Para a instalação do aplicativo, transfira esse arquivo para seu dispositivo android e realize a instalação. Use um dispositivo com versão Android 12 ou superior.
 
 ## Builds
-É possível baixar o aplicativo (para android ou linux) pelos [releases](https://github.com/Claudiney-Santos/brainhub/releases/tag/v1.0.0-alpha-fix)
+É possível baixar o aplicativo (para android ou linux) pelos [releases](https://github.com/Claudiney-Santos/brainhub/releases/tag/v1.0.0-beta)
