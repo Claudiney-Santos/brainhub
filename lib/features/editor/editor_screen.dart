@@ -102,8 +102,22 @@ class _EditorScreenState extends State<EditorScreen> {
               icon: const Icon(Icons.arrow_back),
               onPressed: _goBack,
             ),
-            title: const Text('Editor'),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [const Text('Editor')],
+            ),
             actions: [
+              if (vm.isDirty) ...[
+                const SizedBox(width: 8),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.amber,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
               vm.isSaving
                   ? const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),

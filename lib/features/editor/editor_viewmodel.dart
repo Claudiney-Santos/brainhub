@@ -14,12 +14,14 @@ class EditorViewModel extends ChangeNotifier {
   bool showOutput = false;
   bool _isRunning = false;
   bool _isSaving = false;
+  bool _isDirty = false;
   String? _output;
   String? _pendingCode;
   Timer? _autoSaveTimer;
 
   bool get isRunning => _isRunning;
   bool get isSaving => _isSaving;
+  bool get isDirty => _isDirty;
   String? get output => _output;
   String? get code => project?.code;
   String? get name => project?.name;
@@ -52,6 +54,8 @@ class EditorViewModel extends ChangeNotifier {
 
   void updatePendingCode(String code) {
     _pendingCode = code;
+    _isDirty = code != project?.code;
+    notifyListeners();
   }
 
   Future<void> saveIfNeeded() async {
@@ -94,6 +98,7 @@ class EditorViewModel extends ChangeNotifier {
     if (result is Ok) {
       project = updatedProject;
       _pendingCode = null;
+      _isDirty = false;
     }
 
     _isSaving = false;
@@ -112,4 +117,3 @@ class EditorViewModel extends ChangeNotifier {
     super.dispose();
   }
 }
-
