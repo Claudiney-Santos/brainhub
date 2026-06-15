@@ -20,8 +20,6 @@ Esta aplicação foi desenvolvida com Flutter. Para salvamento em nuvem dos scri
 - Interpretador de código em brainfuck;
 - Salvamento local de configurações;
 - Salvamento em nuvem de scripts;
-
-### Funcionalidades ainda a serem implementadas
 - Geração e leitura de código QR dos scripts de brainfuck;
 
 ## Compilação
