@@ -46,6 +46,34 @@ class MenuViewModel extends ChangeNotifier {
     }
   }
 
+  Future<Result<String, String>> importProjectFromQr(
+    String name,
+    String code,
+  ) async {
+    final result = await _projectsRepository.addProjectWithCode(name, code);
+    switch (result) {
+      case Ok():
+        load();
+        return Result.ok(name);
+      case Err():
+        for (var i = 2; i <= 100; i++) {
+          final altName = '$name ($i)';
+          final retry = await _projectsRepository.addProjectWithCode(
+            altName,
+            code,
+          );
+          switch (retry) {
+            case Ok():
+              load();
+              return Result.ok(altName);
+            case Err():
+              continue;
+          }
+        }
+        return Result.err('Could not import project: ${result.error}');
+    }
+  }
+
   Future<Result<(), String>> deleteProject(String id) async {
     try {
       isLoaded = false;
