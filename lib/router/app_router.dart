@@ -7,6 +7,7 @@ import 'package:brainhub/features/register/register_viewmodel.dart';
 import 'package:brainhub/features/menu/menu_screen.dart';
 import 'package:brainhub/features/editor/editor_screen.dart';
 import 'package:brainhub/features/settings/settings_screen.dart';
+import 'package:brainhub/repositories/hastebin_repository.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/repositories/settings_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -52,6 +53,7 @@ class AppRouter {
           final projectId = state.uri.queryParameters['id'];
           final projectsRepository = context.read<ProjectsRepository>();
           final settings = context.read<SettingsRepository>();
+          final hastebinRepository = context.read<HastebinRepository>();
           return EditorScreen(
             editorViewModel: EditorViewModel(
               projectsRepository: projectsRepository,
@@ -60,6 +62,7 @@ class AppRouter {
                 tapeSize: settings.tapeSize,
                 stepLimit: settings.stepLimit,
               ),
+              hastebinRepository: hastebinRepository,
             ),
           );
         },

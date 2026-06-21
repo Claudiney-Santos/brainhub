@@ -189,6 +189,77 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
+  void _importFromHastebin() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import from Hastebin'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'Paste Hastebin URL or key',
+              ),
+              onSubmitted: (_) => _confirmHastebinImport(
+                controller.text,
+                () => Navigator.of(context).pop(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pastes expire after 1 week',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => _confirmHastebinImport(
+              controller.text,
+              () => Navigator.of(context).pop(),
+            ),
+            child: const Text('Import'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmHastebinImport(String input, VoidCallback close) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide a Hastebin URL or key.')),
+      );
+      return;
+    }
+
+    close();
+    widget.menuViewModel.importFromHastebin(trimmed).then((result) {
+      if (!mounted) return;
+      switch (result) {
+        case Ok():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Imported "${result.value}"')),
+          );
+        case Err():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Import failed: ${result.error}')),
+          );
+      }
+    });
+  }
+
   void _showQrScanner(BuildContext context) {
     final isDesktop = !(Platform.isAndroid || Platform.isIOS);
     showModalBottomSheet(
@@ -366,6 +437,11 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             title: const Text('Projects'),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.cloud_download_outlined),
+                tooltip: 'Import from Hastebin',
+                onPressed: _importFromHastebin,
+              ),
               IconButton(
                 icon: const Icon(Icons.camera_alt_rounded),
                 onPressed: () => _showQrScanner(context),

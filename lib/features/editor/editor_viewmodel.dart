@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:brainhub/features/brainfuck_interpreter/brainfuck_interpreter.dart';
 import 'package:brainhub/models/project.dart';
+import 'package:brainhub/repositories/hastebin_repository.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +9,14 @@ import 'package:flutter/material.dart';
 class EditorViewModel extends ChangeNotifier {
   final BrainfuckInterpreter brainfuckInterpreter;
   final ProjectsRepository projectsRepository;
+  final HastebinRepository hastebinRepository;
   final String? projectId;
 
   Project? project;
   bool showOutput = false;
   bool _isRunning = false;
   bool _isSaving = false;
+  bool _isSharing = false;
   bool _isDirty = false;
   String? _output;
   String? _pendingCode;
@@ -21,6 +24,7 @@ class EditorViewModel extends ChangeNotifier {
 
   bool get isRunning => _isRunning;
   bool get isSaving => _isSaving;
+  bool get isSharing => _isSharing;
   bool get isDirty => _isDirty;
   String? get output => _output;
   String? get code => project?.code;
@@ -30,6 +34,7 @@ class EditorViewModel extends ChangeNotifier {
     required this.projectsRepository,
     required this.projectId,
     required this.brainfuckInterpreter,
+    required this.hastebinRepository,
   });
 
   Future<void> loadProject() async {
@@ -102,6 +107,20 @@ class EditorViewModel extends ChangeNotifier {
     }
 
     _isSaving = false;
+    notifyListeners();
+    return result;
+  }
+
+  Future<Result<String, String>> shareViaHastebin() async {
+    final codeToShare = _pendingCode ?? project?.code ?? '';
+    if (codeToShare.isEmpty) return Result.err('No code to share.');
+
+    _isSharing = true;
+    notifyListeners();
+
+    final result = await hastebinRepository.createPaste(codeToShare);
+
+    _isSharing = false;
     notifyListeners();
     return result;
   }

@@ -2,6 +2,7 @@ import 'package:brainhub/features/editor/editor_viewmodel.dart';
 import 'package:brainhub/utils/result.dart';
 import 'package:brainhub/widgets/input_editor_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:brainhub/widgets/code_editor_field.dart';
 import 'package:brainhub/widgets/output_box.dart';
 import 'package:go_router/go_router.dart';
@@ -44,6 +45,24 @@ class _EditorScreenState extends State<EditorScreen> {
   Future<void> _goBack() async {
     await widget.editorViewModel.saveIfNeeded();
     if (mounted) context.pop();
+  }
+
+  void _shareViaHastebin() {
+    widget.editorViewModel.shareViaHastebin().then((result) {
+      if (!mounted) return;
+      switch (result) {
+        case Ok():
+          final url = result.value;
+          Clipboard.setData(ClipboardData(text: url));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Copied to clipboard: $url')),
+          );
+        case Err():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Share failed: ${result.error}')),
+          );
+      }
+    });
   }
 
   void _runCode() {
@@ -133,6 +152,22 @@ class _EditorScreenState extends State<EditorScreen> {
                       icon: const Icon(Icons.save_rounded),
                       tooltip: 'Save',
                       onPressed: () => _saveProject(_codeController.text),
+                    ),
+              vm.isSharing
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.ios_share_rounded),
+                      tooltip: 'Share via Hastebin',
+                      onPressed: _shareViaHastebin,
                     ),
               vm.isRunning
                   ? const Padding(
