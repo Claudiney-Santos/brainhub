@@ -5,7 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs =
+    { self, nixpkgs }:
     let
       system = "x86_64-linux";
 
@@ -17,20 +18,30 @@
         };
       };
 
-      androidComposition = pkgs.androidenv.composeAndroidPackages {
-        cmdLineToolsVersion = "12.0";
-      };
-      androidSdk = androidComposition.androidsdk;
+      android = pkgs.androidenv.composeAndroidPackages {
+        platformVersions = [ "35" ];
+        buildToolsVersions = [ "35.0.0" ];
 
-    in {
+        includeNDK = true;
+        ndkVersions = [ "28.2.13676358" ];
+
+        cmakeVersions = [ "3.22.1" ];
+      };
+
+    in
+    {
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
           flutter
           jdk17
-          androidSdk
+          android.androidsdk
         ];
 
-        ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
+        ANDROID_SDK_ROOT = "${android.androidsdk}/libexec/android-sdk";
+        ANDROID_HOME = "${android.androidsdk}/libexec/android-sdk";
+        ANDROID_NDK_ROOT = "${android.androidsdk}/libexec/android-sdk/ndk/28.2.13676358";
+
+        JAVA_HOME = "${pkgs.jdk17}";
       };
     };
 }

@@ -16,7 +16,7 @@ class HastebinRepository {
       final url = data['url'] as String;
       return Result.ok(url);
     } catch (e) {
-      return Result.err(e.toString());
+      return Result.err(_messageFor(e));
     }
   }
 
@@ -25,6 +25,7 @@ class HastebinRepository {
       final key = _extractKey(keyOrUrl);
       final response = await _client.functions.invoke(
         _function,
+        method: HttpMethod.get,
         queryParameters: {'key': key},
       );
 
@@ -32,8 +33,19 @@ class HastebinRepository {
       final content = data['content'] as String;
       return Result.ok(content);
     } catch (e) {
-      return Result.err(e.toString());
+      return Result.err(_messageFor(e));
     }
+  }
+
+  String _messageFor(Object e) {
+    if (e is FunctionException) {
+      final details = e.details;
+      if (details is Map && details['error'] is String) {
+        return details['error'] as String;
+      }
+      return e.reasonPhrase ?? 'Hastebin request failed (${e.status}).';
+    }
+    return e.toString();
   }
 
   String _extractKey(String keyOrUrl) {
