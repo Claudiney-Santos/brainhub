@@ -7,8 +7,8 @@ Esta aplicação foi desenvolvida com Flutter. Para salvamento em nuvem dos scri
 - Thales Janisch Santos
 
 ### Divisão geral de tarefas
-- Claudiney Gustavo Rodrigues dos Santos: Implementação dos repositories, providers e do interpretador de brainfuck.
-- Thales Janisch Santos: Definição do design da aplicação, implementação da estrutura estática das telas, implementação do banco de dados.
+- Claudiney Gustavo Rodrigues dos Santos: Implementação dos repositories, providers, interpretador de brainfuck e de leitura e escrita de código QR.
+- Thales Janisch Santos: Definição do design da aplicação, implementação da estrutura estática das telas, implementação do banco de dados e da API do Hastebin através de Edge Functions do Supabase.
 
 ## Funcionalidades
 
@@ -21,6 +21,7 @@ Esta aplicação foi desenvolvida com Flutter. Para salvamento em nuvem dos scri
 - Salvamento local de configurações;
 - Salvamento em nuvem de scripts;
 - Geração e leitura de código QR dos scripts de brainfuck;
+- Compartilhamento de código através da API do [Hastebin](https://www.toptal.com/developers/hastebin/documentation)
 
 ## Compilação
 A aplicação foi desenvolvida com Flutter, versão 3.41.6. Siga o [Guia Rápido do Flutter](https://docs.flutter.dev/install/quick) para a configuração do ambiente.
@@ -40,4 +41,4 @@ flutter build apk
 O arquivo executável estará disponível em `build/app/outputs/apk/release/app-release.apk`. Para a instalação do aplicativo, transfira esse arquivo para seu dispositivo android e realize a instalação. Use um dispositivo com versão Android 12 ou superior.
 
 ## Builds
-É possível baixar o aplicativo (para android ou linux) pelos [releases](https://github.com/Claudiney-Santos/brainhub/releases/tag/v1.0.0-beta)
+É possível baixar o aplicativo (para android ou linux) pelos [releases](https://github.com/Claudiney-Santos/brainhub/releases/tag/v1.0.0)
