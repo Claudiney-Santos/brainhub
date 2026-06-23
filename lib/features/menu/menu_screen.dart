@@ -1,11 +1,18 @@
+import 'dart:io';
+
 import 'package:brainhub/features/menu/menu_viewmodel.dart';
 import 'package:brainhub/utils/result.dart';
+import 'package:brainhub/utils/qr_code_data.dart';
+import 'package:brainhub/utils/qr_image_decoder.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:brainhub/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:brainhub/widgets/project_list_item.dart';
 import 'package:brainhub/models/project.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:brainhub/widgets/qr_scanner_dialog.dart';
 
 class MenuScreen extends StatefulWidget {
   final MenuViewModel menuViewModel;
@@ -128,6 +135,11 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   void _showQr(BuildContext context, Project project) {
+    final qrData = QrCodeData(
+      name: project.name,
+      code: project.code,
+    ).toQrString();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -151,10 +163,16 @@ class _MenuScreenState extends State<MenuScreen> {
                   width: 220,
                   height: 220,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(child: Icon(Icons.qr_code_2, size: 120)),
+                  padding: const EdgeInsets.all(8),
+                  child: QrImageView(
+                    data: qrData,
+                    version: QrVersions.auto,
+                    size: 200,
+                    backgroundColor: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 IconButton(
@@ -170,46 +188,230 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _showQrScanner(BuildContext context) {
+  void _importFromHastebin() {
+    final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) {
-        final theme = Theme.of(context);
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+      builder: (context) => AlertDialog(
+        title: const Text('Import from Hastebin'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'Paste Hastebin URL or key',
+              ),
+              onSubmitted: (_) => _confirmHastebinImport(
+                controller.text,
+                () => Navigator.of(context).pop(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pastes expire after 1 week',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.qr_code_rounded,
-                  size: 40,
+          TextButton(
+            onPressed: () => _confirmHastebinImport(
+              controller.text,
+              () => Navigator.of(context).pop(),
+            ),
+            child: const Text('Import'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmHastebinImport(String input, VoidCallback close) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide a Hastebin URL or key.')),
+      );
+      return;
+    }
+
+    close();
+    widget.menuViewModel.importFromHastebin(trimmed).then((result) {
+      if (!mounted) return;
+      switch (result) {
+        case Ok():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Imported "${result.value}"')),
+          );
+        case Err():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Import failed: ${result.error}')),
+          );
+      }
+    });
+  }
+
+  void _showQrScanner(BuildContext context) {
+    final isDesktop = !(Platform.isAndroid || Platform.isIOS);
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Import QR Code',
+                style: theme.textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              if (isDesktop)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 18,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Camera scanning is only available on mobile devices.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (!isDesktop)
+                ListTile(
+                  leading: Icon(
+                    Icons.camera_alt_rounded,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: const Text('Scan with camera'),
+                  trailing: const Icon(Icons.chevron_right),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _openCameraScanner();
+                  },
+                ),
+              ListTile(
+                leading: Icon(
+                  Icons.image_rounded,
                   color: theme.colorScheme.primary,
                 ),
-                const SizedBox(height: 16),
-                Container(
-                  width: 260,
-                  height: 260,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Center(child: Icon(Icons.videocam, size: 100)),
+                title: const Text('Import from image'),
+                trailing: const Icon(Icons.chevron_right),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 20),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _pickQrFromImage();
+                },
+              ),
+            ],
           ),
         );
       },
     );
+  }
+
+  void _openCameraScanner() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => QrScannerDialog(
+        onDetected: (raw) {
+          Navigator.of(dialogContext).pop();
+          _processScannedQr(raw);
+        },
+      ),
+    );
+  }
+
+  Future<void> _pickQrFromImage() async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.image,
+        withData: true,
+      );
+      if (result == null || result.files.single.bytes == null) return;
+
+      final raw = decodeQrFromBytes(result.files.single.bytes!);
+      if (raw == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No QR code found in the selected image.'),
+          ),
+        );
+        return;
+      }
+
+      _processScannedQr(raw);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to read the image file.')),
+      );
+    }
+  }
+
+  void _processScannedQr(String raw) {
+    final data = QrCodeData.fromQrString(raw);
+    if (data == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid QR code. Not a BrainHub project.')),
+      );
+      return;
+    }
+
+    widget.menuViewModel
+        .importProjectFromQr(data.name, data.code)
+        .then((result) {
+      if (!mounted) return;
+      switch (result) {
+        case Ok():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Imported "${result.value}"')),
+          );
+        case Err():
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Import failed: ${result.error}')),
+          );
+      }
+    });
   }
 
   Future<void> _logout() async {
@@ -234,6 +436,11 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             title: const Text('Projects'),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.cloud_download_outlined),
+                tooltip: 'Import from Hastebin',
+                onPressed: _importFromHastebin,
+              ),
               IconButton(
                 icon: const Icon(Icons.camera_alt_rounded),
                 onPressed: () => _showQrScanner(context),

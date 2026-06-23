@@ -1,4 +1,5 @@
 import 'package:brainhub/models/project.dart';
+import 'package:brainhub/repositories/hastebin_repository.dart';
 import 'package:brainhub/repositories/projects_repository.dart';
 import 'package:brainhub/utils/result.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +9,13 @@ class MenuViewModel extends ChangeNotifier {
   List<Project> projects = [];
 
   final ProjectsRepository _projectsRepository;
+  final HastebinRepository _hastebinRepository;
 
-  MenuViewModel({required ProjectsRepository projectsRepository})
-    : _projectsRepository = projectsRepository;
+  MenuViewModel({
+    required ProjectsRepository projectsRepository,
+    required HastebinRepository hastebinRepository,
+  })  : _projectsRepository = projectsRepository,
+        _hastebinRepository = hastebinRepository;
 
   void load() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -43,6 +48,82 @@ class MenuViewModel extends ChangeNotifier {
       return result;
     } catch (e) {
       return Result.err(e.toString());
+    }
+  }
+
+  Future<Result<String, String>> importProjectFromQr(
+    String name,
+    String code,
+  ) async {
+    final result = await _projectsRepository.addProjectWithCode(name, code);
+    switch (result) {
+      case Ok():
+        load();
+        return Result.ok(name);
+      case Err():
+        for (var i = 2; i <= 100; i++) {
+          final altName = '$name ($i)';
+          final retry = await _projectsRepository.addProjectWithCode(
+            altName,
+            code,
+          );
+          switch (retry) {
+            case Ok():
+              load();
+              return Result.ok(altName);
+            case Err():
+              continue;
+          }
+        }
+        return Result.err('Could not import project: ${result.error}');
+    }
+  }
+
+  Future<Result<String, String>> importFromHastebin(String keyOrUrl) async {
+    final trimmed = keyOrUrl.trim();
+    if (trimmed.isEmpty) return Result.err('Please provide a Hastebin URL or key.');
+
+    final result = await _hastebinRepository.fetchPaste(trimmed);
+    switch (result) {
+      case Ok():
+        final code = result.value;
+        String name;
+        if (trimmed.contains('://')) {
+          final uri = Uri.tryParse(trimmed);
+          final segments =
+              uri?.pathSegments.where((s) => s.isNotEmpty).toList() ?? [];
+          name = segments.isNotEmpty ? segments.last : 'Hastebin Import';
+        } else {
+          name = trimmed;
+        }
+
+        final addResult = await _projectsRepository.addProjectWithCode(
+          name,
+          code,
+        );
+        switch (addResult) {
+          case Ok():
+            load();
+            return Result.ok(name);
+          case Err():
+            for (var i = 2; i <= 100; i++) {
+              final altName = '$name ($i)';
+              final retry = await _projectsRepository.addProjectWithCode(
+                altName,
+                code,
+              );
+              switch (retry) {
+                case Ok():
+                  load();
+                  return Result.ok(altName);
+                case Err():
+                  continue;
+              }
+            }
+            return Result.err('Could not import project: ${addResult.error}');
+        }
+      case Err():
+        return Result.err(result.error);
     }
   }
 

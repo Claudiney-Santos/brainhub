@@ -31,6 +31,13 @@ class ProjectsRepository {
   }
 
   Future<Result<(), String>> addProject(String projectName) async {
+    return addProjectWithCode(projectName, '');
+  }
+
+  Future<Result<(), String>> addProjectWithCode(
+    String projectName,
+    String code,
+  ) async {
     try {
       final existing = await _client
           .from(_table)
@@ -47,7 +54,7 @@ class ProjectsRepository {
       await _client.from(_table).insert({
         'user_id': _userId,
         'name': projectName,
-        'code': '',
+        'code': code,
         'is_deleted': false,
       });
 
